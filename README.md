@@ -30,3 +30,8 @@ optional arguments:
 --num_epochs                  train epochs number [default value is 100]
 ```
 Visdom now can be accessed by going to `127.0.0.1:8097` in your browser.
+
+## Results
+The train loss/accuracy, test loss/accuracy, and confusion matrix are showed with visdom,
+the best test accuracy is ~ 95.72%.
+![result](results/result.png)
