@@ -53,12 +53,11 @@ def on_start_epoch(state):
 
 
 def on_end_epoch(state):
-    print('[Epoch %d] Training Loss: %.4f Top1 Accuracy: %.2f%% Top5 Accuracy: %.2f%%' % (
-        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0], meter_accuracy.value()[1]))
+    print('[Epoch %d] Training Loss: %.4f Accuracy: %.2f%%' % (
+        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
     train_loss_logger.log(state['epoch'], meter_loss.value()[0])
-    train_top1_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    train_top5_accuracy_logger.log(state['epoch'], meter_accuracy.value()[1])
+    train_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
 
     # learning rate scheduler
     scheduler.step(meter_loss.value()[0], epoch=state['epoch'])
@@ -68,25 +67,24 @@ def on_end_epoch(state):
     engine.test(processor, get_iterator(False, BATCH_SIZE, USE_DA))
 
     test_loss_logger.log(state['epoch'], meter_loss.value()[0])
-    test_top1_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    test_top5_accuracy_logger.log(state['epoch'], meter_accuracy.value()[1])
+    test_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
     confusion_logger.log(confusion_meter.value())
 
-    print('[Epoch %d] Testing Loss: %.4f Top1 Accuracy: %.2f%% Top5 Accuracy: %.2f%%' % (
-        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0], meter_accuracy.value()[1]))
+    print('[Epoch %d] Testing Loss: %.4f Accuracy: %.2f%%' % (
+        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
     torch.save(model.state_dict(), 'epochs/%d.pth' % (state['epoch']))
 
     # visualization
-    test_image, _ = next(iter(get_iterator(False, 25, USE_DA)))
-    test_image_logger.log(make_grid(test_image, nrow=5, normalize=True).numpy())
+    test_image, _ = next(iter(get_iterator(False, 9, USE_DA)))
+    test_image_logger.log(make_grid(test_image, nrow=3, normalize=True).numpy())
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Train Classfication')
     parser.add_argument('--use_da', action='store_true', help='use data augmentation or not')
-    parser.add_argument('--batch_size', default=100, type=int, help='train batch size')
+    parser.add_argument('--batch_size', default=30, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=100, type=int, help='train epochs number')
 
     opt = parser.parse_args()
@@ -104,19 +102,17 @@ if __name__ == '__main__':
     print("# parameters:", sum(param.numel() for param in model.parameters()))
 
     optimizer = Adam(model.classifier.parameters())
-    scheduler = ReduceLROnPlateau(optimizer, factor=0.25, patience=5, threshold=1e-2, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, factor=0.25, patience=5, threshold=1e-3, verbose=True)
 
     engine = Engine()
     meter_loss = tnt.meter.AverageValueMeter()
-    meter_accuracy = tnt.meter.ClassErrorMeter(topk=[1, 5], accuracy=True)
-    confusion_meter = tnt.meter.ConfusionMeter(10, normalized=True)
+    meter_accuracy = tnt.meter.ClassErrorMeter(accuracy=True)
+    confusion_meter = tnt.meter.ConfusionMeter(2, normalized=True)
 
     train_loss_logger = VisdomPlotLogger('line', opts={'title': 'Train Loss'})
-    train_top1_accuracy_logger = VisdomPlotLogger('line', opts={'title': 'Train Top1 Accuracy'})
-    train_top5_accuracy_logger = VisdomPlotLogger('line', opts={'title': 'Train Top5 Accuracy'})
+    train_accuracy_logger = VisdomPlotLogger('line', opts={'title': 'Train Accuracy'})
     test_loss_logger = VisdomPlotLogger('line', opts={'title': 'Test Loss'})
-    test_top1_accuracy_logger = VisdomPlotLogger('line', opts={'title': 'Test Top1 Accuracy'})
-    test_top5_accuracy_logger = VisdomPlotLogger('line', opts={'title': 'Test Top5 Accuracy'})
+    test_accuracy_logger = VisdomPlotLogger('line', opts={'title': 'Test Accuracy'})
     confusion_logger = VisdomLogger('heatmap', opts={'title': 'Confusion Matrix'})
     test_image_logger = VisdomLogger('image', opts={'title': 'Test Image', 'width': 371, 'height': 335})
 
