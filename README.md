@@ -1,5 +1,5 @@
-# DLTemplate
-A PyTorch Deep Learning Template
+# TransferLearning
+Transfer Learning
 
 ## Requirements
 * [Anaconda(Python 3.6 version)](https://www.anaconda.com/download/)
@@ -24,4 +24,4 @@ optional arguments:
 --batch_size                  train batch size [default value is 100]
 --num_epochs                  train epochs number [default value is 100]
 ```
-Visdom now can be accessed by going to `127.0.0.1:8097/env/main` in your browser.
+Visdom now can be accessed by going to `127.0.0.1:8097` in your browser.
