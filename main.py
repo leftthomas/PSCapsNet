@@ -2,6 +2,7 @@ import argparse
 
 import torch
 import torchnet as tnt
+from torch import nn
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -11,12 +12,11 @@ from torchvision.utils import make_grid
 from tqdm import tqdm
 
 from model import Model
-from utils import get_iterator, MarginLoss
+from utils import get_iterator
 
 
 def processor(sample):
     data, labels, training = sample
-    labels = torch.eye(2).index_select(dim=0, index=labels)
 
     if torch.cuda.is_available():
         data = data.cuda()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     NUM_EPOCHS = opt.num_epochs
 
     model = Model()
-    loss_criterion = MarginLoss()
+    loss_criterion = nn.CrossEntropyLoss()
     if torch.cuda.is_available():
         model.cuda()
         loss_criterion.cuda()
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     print("# parameters:", sum(param.numel() for param in model.parameters()))
 
     optimizer = Adam(model.classifier.parameters())
-    scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=5, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=6, verbose=True)
 
     engine = Engine()
     meter_loss = tnt.meter.AverageValueMeter()

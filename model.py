@@ -1,4 +1,3 @@
-from capsule_layer import CapsuleLinear
 from torch import nn
 from torchvision.models import resnet18
 
@@ -18,12 +17,10 @@ class Model(nn.Module):
         self.features = nn.Sequential(*layers)
 
         num_features = res_net.fc.in_features
-        self.classifier = CapsuleLinear(in_capsules=num_features // 8, out_capsules=2, in_length=8, out_length=16,
-                                        routing_type='contract', share_weight=False, num_iterations=3)
+        self.classifier = nn.Linear(in_features=num_features, out_features=2)
 
     def forward(self, x):
         out = self.features(x)
-        out = out.view(out.size(0), -1, 8)
-        out = self.classifier(out)
-        classes = out.norm(dim=-1)
+        out = out.view(out.size(0), -1)
+        classes = self.classifier(out)
         return classes
