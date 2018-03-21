@@ -8,13 +8,15 @@ class Model(nn.Module):
         res_net = resnet18(pretrained=True)
         for param in res_net.parameters():
             param.requires_grad = False
+        layers = []
+        for name, module in res_net.named_children():
+            if name == 'fc':
+                break
+            else:
+                layers.append(module)
+        self.features = nn.Sequential(*layers)
+
         num_features = res_net.fc.in_features
-        print(res_net.children())
-        print(res_net.modules())
-        print(res_net.named_children())
-        print(res_net.named_modules())
-        # for module in res_net.children()
-        self.features = None
         self.classifier = nn.Linear(in_features=num_features, out_features=2)
 
     def forward(self, x):
@@ -22,7 +24,3 @@ class Model(nn.Module):
         out = out.view(out.size(0), -1)
         classes = self.classifier(out)
         return classes
-
-
-if __name__ == '__main__':
-    model = Model()
