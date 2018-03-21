@@ -1,7 +1,6 @@
 import argparse
 
 import torch
-import torch.nn as nn
 import torchnet as tnt
 from torch.autograd import Variable
 from torch.optim import Adam
@@ -12,11 +11,12 @@ from torchvision.utils import make_grid
 from tqdm import tqdm
 
 from model import Model
-from utils import get_iterator
+from utils import get_iterator, MarginLoss
 
 
 def processor(sample):
     data, labels, training = sample
+    labels = torch.eye(2).index_select(dim=0, index=labels)
 
     if torch.cuda.is_available():
         data = data.cuda()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     NUM_EPOCHS = opt.num_epochs
 
     model = Model()
-    loss_criterion = nn.CrossEntropyLoss()
+    loss_criterion = MarginLoss()
     if torch.cuda.is_available():
         model.cuda()
         loss_criterion.cuda()
