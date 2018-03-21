@@ -23,10 +23,7 @@ class Model(nn.Module):
 
     def forward(self, x):
         out = self.features(x)
-        out = out.view(*out.size()[:2], -1)
-        out = out.transpose(-1, -2)
-        out = out.contiguous().view(out.size(0), -1, 8)
-
+        out = out.view(out.size(0), -1, 8)
         out = self.classifier(out)
         classes = out.norm(dim=-1)
         return classes
