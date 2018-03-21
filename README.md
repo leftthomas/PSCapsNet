@@ -1,5 +1,5 @@
-# TransferLearning
-Transfer Learning
+# TLLearn
+Learn Transfer Learning
 
 ## Requirements
 * [Anaconda(Python 3.6 version)](https://www.anaconda.com/download/)
@@ -19,7 +19,7 @@ conda install tqdm
 ## DataSet
 The train and test datasets are sampled from ImageNet. 
 Download the datasets from [here](https://download.pytorch.org/tutorial/hymenoptera_data.zip), 
-and then extract it into `data\train` and `data\test` directories.
+and then extract it into `data/train` and `data/test` directories.
 
 ## Usage
 ```
@@ -32,6 +32,6 @@ optional arguments:
 Visdom now can be accessed by going to `127.0.0.1:8097` in your browser.
 
 ## Results
-The train loss/accuracy, test loss/accuracy, and confusion matrix are showed with visdom,
+The train loss、accuracy, test loss、accuracy, and confusion matrix are showed with visdom,
 the best test accuracy is ~ 95.72%.
 ![result](results/result.png)
