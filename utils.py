@@ -61,7 +61,7 @@ class GradCam:
                     if self.model.net_mode == 'Capsule':
                         feature = feature.view(*feature.size()[:2], -1)
                         feature = feature.transpose(-1, -2)
-                        feature = feature.contiguous().view(feature.size(0), -1, module[0].weight.size(-1))
+                        feature = feature.contiguous().view(feature.size(0), -1, module.weight.size(-1))
                     else:
                         feature = feature.view(feature.size(0), -1)
                 feature = module(feature)
