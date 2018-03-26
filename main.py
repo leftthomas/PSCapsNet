@@ -95,10 +95,11 @@ def on_end_epoch(state):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Train Capsule Classfication')
+    parser = argparse.ArgumentParser(description='Train Classfication')
     parser.add_argument('--data_type', default='MNIST', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'],
                         help='dataset type')
+    parser.add_argument('--net_mode', default='Capsule', type=str, choices=['Capsule', 'CNN'], help='network mode')
     parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
     parser.add_argument('--batch_size', default=100, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=100, type=int, help='train epochs number')
@@ -106,6 +107,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
+    NET_MODE = opt.net_mode
     NUM_ITERATIONS = opt.num_iterations
     BATCH_SIZE = opt.batch_size
     NUM_EPOCHS = opt.num_epochs
@@ -117,7 +119,7 @@ if __name__ == '__main__':
     if DATA_TYPE == 'CIFAR100':
         CLASSES = 100
 
-    model = models[DATA_TYPE](NUM_ITERATIONS)
+    model = models[DATA_TYPE](NUM_ITERATIONS, NET_MODE)
     loss_criterion = nn.CrossEntropyLoss()
     grad_cam = GradCam(model)
     if torch.cuda.is_available():

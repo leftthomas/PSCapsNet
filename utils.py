@@ -58,14 +58,20 @@ class GradCam:
             feature = datas[i].unsqueeze(0)
             for name, module in self.model.named_children():
                 if name == 'classifier':
-                    feature = feature.view(*feature.size()[:2], -1)
-                    feature = feature.transpose(-1, -2)
-                    feature = feature.contiguous().view(feature.size(0), -1, module[0].weight.size(-1))
+                    if self.model.net_mode == 'Capsule':
+                        feature = feature.view(*feature.size()[:2], -1)
+                        feature = feature.transpose(-1, -2)
+                        feature = feature.contiguous().view(feature.size(0), -1, module[0].weight.size(-1))
+                    else:
+                        feature = feature.view(feature.size(0), -1)
                 feature = module(feature)
                 if name == 'features':
                     feature.register_hook(self.save_gradient)
                     self.feature = feature
-            classes = feature.sum(dim=-1)
+            if self.model.net_mode == 'Capsule':
+                classes = feature.sum(dim=-1)
+            else:
+                classes = feature
             one_hot, _ = classes.max(dim=-1)
             self.model.zero_grad()
             one_hot.backward()
