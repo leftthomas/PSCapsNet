@@ -34,7 +34,7 @@ def download_url(url, root, filename, md5):
 
     # downloads file
     if os.path.isfile(fpath) and check_integrity(fpath, md5):
-        print('Using downloaded and verified file: ' + fpath)
+        pass
     else:
         try:
             print('Downloading ' + url + ' to ' + fpath)

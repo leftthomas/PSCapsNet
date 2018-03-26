@@ -134,7 +134,6 @@ class CIFAR10(data.Dataset):
         import tarfile
 
         if self._check_integrity():
-            print('Files already downloaded and verified')
             return
 
         root = self.root

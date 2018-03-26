@@ -70,7 +70,6 @@ class MNIST(data.Dataset):
                os.path.exists(os.path.join(self.root, self.processed_folder, self.test_file))
 
     def download(self):
-        """Download the MNIST data if it doesn't exist in processed_folder already."""
         from six.moves import urllib
         import gzip
 
