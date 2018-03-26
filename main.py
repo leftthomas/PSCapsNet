@@ -62,35 +62,50 @@ def on_end_epoch(state):
 
     reset_meters()
 
-    engine.test(processor, get_iterator(False, DATA_TYPE, BATCH_SIZE))
+    engine.test(processor, get_iterator('test_single', DATA_TYPE, BATCH_SIZE))
 
-    test_loss_logger.log(state['epoch'], meter_loss.value()[0])
-    test_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
+    test_single_loss_logger.log(state['epoch'], meter_loss.value()[0])
+    test_single_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
     confusion_logger.log(confusion_meter.value())
-    results['test_loss'].append(meter_loss.value()[0])
-    results['test_accuracy'].append(meter_accuracy.value()[0])
+    results['test_single_loss'].append(meter_loss.value()[0])
+    results['test_single_accuracy'].append(meter_accuracy.value()[0])
 
-    print('[Epoch %d] Testing Loss: %.4f Testing Accuracy: %.2f%%' % (
+    print('[Epoch %d] Testing Single Loss: %.4f Testing Single Accuracy: %.2f%%' % (
         state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
-    torch.save(model.state_dict(), 'epochs/%s_%d.pth' % (DATA_TYPE, state['epoch']))
+    # reset_meters()
+    #
+    # engine.test(processor, get_iterator('test_multi', DATA_TYPE, BATCH_SIZE))
+    #
+    # test_multi_loss_logger.log(state['epoch'], meter_loss.value()[0])
+    # test_multi_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
+    # results['test_multi_loss'].append(meter_loss.value()[0])
+    # results['test_multi_accuracy'].append(meter_accuracy.value()[0])
+    #
+    # print('[Epoch %d] Testing Multi Loss: %.4f Testing Multi Accuracy: %.2f%%' % (
+    #     state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
+    # features visualization
+    test_multi_image, _ = next(iter(get_iterator('test_multi', DATA_TYPE, 8)))
+    test_multi_image_logger.log(make_grid(test_multi_image, nrow=4, normalize=True).numpy())
+    if torch.cuda.is_available():
+        test_multi_image = test_multi_image.cuda()
+    feature_image = grad_cam(test_multi_image)
+    multi_feature_image_logger.log(make_grid(feature_image, nrow=4, normalize=True).numpy())
+
+    # save model
+    torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))
     # save statistics at every 10 epochs
     if state['epoch'] % 10 == 0:
         out_path = 'statistics/'
         data_frame = pd.DataFrame(
-            data={'train_loss': results['train_loss'], 'test_loss': results['test_loss'],
-                  'train_accuracy': results['train_accuracy'], 'test_accuracy': results['test_accuracy']},
+            data={'train_loss': results['train_loss'], 'train_accuracy': results['train_accuracy'],
+                  'test_single_loss': results['test_single_loss'],
+                  'test_single_accuracy': results['test_single_accuracy'],
+                  'test_multi_loss': results['test_multi_loss'],
+                  'test_multi_accuracy': results['test_multi_accuracy']},
             index=range(1, state['epoch'] + 1))
-        data_frame.to_csv(out_path + DATA_TYPE + '_results.csv', index_label='epoch')
-
-    # features visualization
-    test_image, _ = next(iter(get_iterator(False, DATA_TYPE, 25)))
-    test_image_logger.log(make_grid(test_image, nrow=5, normalize=True).numpy())
-    if torch.cuda.is_available():
-        test_image = test_image.cuda()
-    feature_image = grad_cam(test_image)
-    feature_image_logger.log(make_grid(feature_image, nrow=5, normalize=True).numpy())
+        data_frame.to_csv(out_path + DATA_TYPE + '_' + NET_MODE + '_results.csv', index_label='epoch')
 
 
 if __name__ == '__main__':
@@ -112,7 +127,8 @@ if __name__ == '__main__':
     BATCH_SIZE = opt.batch_size
     NUM_EPOCHS = opt.num_epochs
 
-    results = {'train_loss': [], 'test_loss': [], 'train_accuracy': [], 'test_accuracy': []}
+    results = {'train_loss': [], 'train_accuracy': [], 'test_single_loss': [], 'test_single_accuracy': [],
+               'test_multi_loss': [], 'test_multi_accuracy': []}
 
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
@@ -137,19 +153,21 @@ if __name__ == '__main__':
 
     train_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Loss'})
     train_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Accuracy'})
-    test_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Loss'})
-    test_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Accuracy'})
+    test_single_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Single Loss'})
+    test_single_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Single Accuracy'})
+    test_multi_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Multi Loss'})
+    test_multi_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Multi Accuracy'})
     confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
                                     opts={'title': 'Confusion Matrix', 'columnnames': class_name,
                                           'rownames': class_name})
-    test_image_logger = VisdomLogger('image', env=DATA_TYPE,
-                                     opts={'title': 'Test Image', 'width': 371, 'height': 335})
-    feature_image_logger = VisdomLogger('image', env=DATA_TYPE,
-                                        opts={'title': 'Feature Image', 'width': 371, 'height': 335})
+    test_multi_image_logger = VisdomLogger('image', env=DATA_TYPE,
+                                           opts={'title': 'Test Multi Image', 'width': 371, 'height': 335})
+    multi_feature_image_logger = VisdomLogger('image', env=DATA_TYPE,
+                                              opts={'title': 'Multi Feature Image', 'width': 371, 'height': 335})
 
     engine.hooks['on_sample'] = on_sample
     engine.hooks['on_forward'] = on_forward
     engine.hooks['on_start_epoch'] = on_start_epoch
     engine.hooks['on_end_epoch'] = on_end_epoch
 
-    engine.train(processor, get_iterator(True, DATA_TYPE, BATCH_SIZE), maxepoch=NUM_EPOCHS, optimizer=optimizer)
+    engine.train(processor, get_iterator('train', DATA_TYPE, BATCH_SIZE), maxepoch=NUM_EPOCHS, optimizer=optimizer)

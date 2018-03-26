@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.autograd import Variable
+from torch.utils.data import ConcatDataset
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST, STL10, SVHN
 
@@ -95,9 +96,29 @@ class GradCam:
 
 def get_iterator(mode, data_type, batch_size=100):
     if (data_type == 'STL10') or (data_type == 'SVHN'):
-        data = data_set[data_type](root='data/' + data_type, split='train' if mode else 'test',
-                                   transform=transforms.ToTensor(), download=True)
+        if mode == 'train':
+            data = data_set[data_type](root='data/' + data_type, split='train', transform=transforms.ToTensor(),
+                                       download=True)
+        elif mode == 'test_single':
+            data = data_set[data_type](root='data/' + data_type, split='test', transform=transforms.ToTensor(),
+                                       download=True)
+        else:
+            # test_multi
+            data = data_set[data_type](root='data/' + data_type, split='test', transform=transforms.ToTensor(),
+                                       download=True)
+            data = ConcatDataset([data, data])
+
     else:
-        data = data_set[data_type](root='data/' + data_type, train=mode, transform=transforms.ToTensor(), download=True)
+        if mode == 'train':
+            data = data_set[data_type](root='data/' + data_type, train=True, transform=transforms.ToTensor(),
+                                       download=True)
+        elif mode == 'test_single':
+            data = data_set[data_type](root='data/' + data_type, train=False, transform=transforms.ToTensor(),
+                                       download=True)
+        else:
+            # test_multi
+            data = data_set[data_type](root='data/' + data_type, train=False, transform=transforms.ToTensor(),
+                                       download=True)
+            data = ConcatDataset([data, data])
 
     return DataLoader(dataset=data, batch_size=batch_size, shuffle=mode, num_workers=4)
