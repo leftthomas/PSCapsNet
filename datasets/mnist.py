@@ -47,7 +47,7 @@ class MNIST(data.Dataset):
             self.test_labels = torch.stack(
                 [self.test_labels, torch.index_select(self.test_labels, dim=0, index=idx)]).t()
             # make sure the two number is different
-            mask = self.test_labels[:, 0] != self.test_labels[:, 1]
+            mask = torch.ne(self.test_labels[:, 0], self.test_labels[:, 1])
             self.test_data = self.test_data.masked_select(mask.unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 28, 56)
             self.test_labels = self.test_labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
             # just compare the labels, don't compare the order
