@@ -42,6 +42,16 @@ class MNIST(data.Dataset):
             # test_multi
             self.test_data, self.test_labels = torch.load(
                 os.path.join(self.root, self.processed_folder, self.test_file))
+            idx = torch.randperm(len(self.test_data))
+            self.test_data = torch.cat([self.test_data, torch.index_select(self.test_data, dim=0, index=idx)], dim=-1)
+            self.test_labels = torch.stack(
+                [self.test_labels, torch.index_select(self.test_labels, dim=0, index=idx)]).t()
+            # make sure the two number is different
+            mask = self.test_labels[:, 0] != self.test_labels[:, 1]
+            self.test_data = self.test_data.masked_select(mask.unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 28, 56)
+            self.test_labels = self.test_labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
+            # just compare the labels, don't compare the order
+            self.test_labels, _ = self.test_labels.sort(dim=-1)
 
     def __getitem__(self, index):
         if self.mode == 'train':
