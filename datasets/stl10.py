@@ -66,7 +66,10 @@ class STL10(CIFAR10):
                 self.classes = f.read().splitlines()
 
     def __getitem__(self, index):
-        img, target = self.data[index], int(self.labels[index])
+        if self.mode != 'test_multi':
+            img, target = self.data[index], int(self.labels[index])
+        else:
+            img, target = self.data[index], self.labels[index]
         img = Image.fromarray(np.transpose(img, (1, 2, 0)))
 
         if self.transform is not None:
