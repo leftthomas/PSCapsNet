@@ -6,7 +6,6 @@ import torchnet as tnt
 from torch import nn
 from torch.autograd import Variable
 from torch.optim import Adam
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchnet.engine import Engine
 from torchnet.logger import VisdomPlotLogger, VisdomLogger
 from torchvision.utils import make_grid
@@ -63,12 +62,9 @@ def on_end_epoch(state):
     results['train_top1_accuracy'].append(meter_accuracy.value()[0])
     results['train_top5_accuracy'].append(meter_accuracy.value()[1])
 
-    # learning rate scheduler
-    scheduler.step(meter_loss.value()[0], epoch=state['epoch'])
-
     reset_meters()
 
-    engine.test(processor, get_iterator(False, DATA_TYPE, BATCH_SIZE, USE_DA))
+    engine.test(processor, get_iterator(False, DATA_TYPE, BATCH_SIZE))
 
     test_loss_logger.log(state['epoch'], meter_loss.value()[0])
     test_top1_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
@@ -96,7 +92,7 @@ def on_end_epoch(state):
         data_frame.to_csv(out_path + DATA_TYPE + '_results.csv', index_label='epoch')
 
     # features visualization
-    test_image, _ = next(iter(get_iterator(False, DATA_TYPE, 25, USE_DA)))
+    test_image, _ = next(iter(get_iterator(False, DATA_TYPE, 25)))
     test_image_logger.log(make_grid(test_image, nrow=5, normalize=True).numpy())
     if torch.cuda.is_available():
         test_image = test_image.cuda()
@@ -110,7 +106,6 @@ if __name__ == '__main__':
     parser.add_argument('--data_type', default='MNIST', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'],
                         help='dataset type')
-    parser.add_argument('--use_da', action='store_true', help='use data augmentation or not')
     parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
     parser.add_argument('--batch_size', default=100, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=100, type=int, help='train epochs number')
@@ -118,7 +113,6 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
-    USE_DA = opt.use_da
     NUM_ITERATIONS = opt.num_iterations
     BATCH_SIZE = opt.batch_size
     NUM_EPOCHS = opt.num_epochs
@@ -141,7 +135,6 @@ if __name__ == '__main__':
     print("# parameters:", sum(param.numel() for param in model.parameters()))
 
     optimizer = Adam(model.parameters())
-    scheduler = ReduceLROnPlateau(optimizer, factor=0.2, verbose=True)
 
     engine = Engine()
     meter_loss = tnt.meter.AverageValueMeter()
@@ -167,5 +160,4 @@ if __name__ == '__main__':
     engine.hooks['on_start_epoch'] = on_start_epoch
     engine.hooks['on_end_epoch'] = on_end_epoch
 
-    engine.train(processor, get_iterator(True, DATA_TYPE, BATCH_SIZE, USE_DA), maxepoch=NUM_EPOCHS,
-                 optimizer=optimizer)
+    engine.train(processor, get_iterator(True, DATA_TYPE, BATCH_SIZE), maxepoch=NUM_EPOCHS, optimizer=optimizer)
