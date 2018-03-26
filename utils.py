@@ -44,7 +44,7 @@ class GradCam:
         self.gradient = grad
 
     def __call__(self, x):
-        image_size = (x.size(-2), x.size(-1))
+        image_size = (x.size(-1), x.size(-2))
         image_channel = x.size(1)
         datas = Variable(x)
         heat_maps = []
@@ -78,6 +78,7 @@ class GradCam:
             if np.max(mask) != 0:
                 mask = mask / np.max(mask)
             heat_map = np.float32(cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET))
+
             cam = heat_map + np.float32(cv2.cvtColor(np.uint8(img.transpose((1, 2, 0)) * 255),
                                                      cv2.COLOR_RGB2BGR if image_channel == 3 else cv2.COLOR_GRAY2BGR))
             cam = cam - np.min(cam)
