@@ -3,6 +3,7 @@ import os.path
 import sys
 
 import numpy as np
+import torch
 from PIL import Image
 
 if sys.version_info[0] == 2:
@@ -97,6 +98,22 @@ class CIFAR10(data.Dataset):
                 self.test_labels = entry['fine_labels']
             fo.close()
             self.test_data = self.test_data.reshape((10000, 3, 32, 32))
+
+            self.test_data = torch.from_numpy(self.test_data)
+            self.test_labels = torch.from_numpy(np.asarray(self.test_labels))
+            idx = torch.randperm(len(self.test_data))
+            self.test_data = torch.cat([self.test_data, torch.index_select(self.test_data, dim=0, index=idx)], dim=-1)
+            self.test_labels = torch.stack(
+                [self.test_labels, torch.index_select(self.test_labels, dim=0, index=idx)]).t()
+            # make sure the two number is different
+            mask = torch.ne(self.test_labels[:, 0], self.test_labels[:, 1])
+            self.test_data = self.test_data.masked_select(
+                mask.unsqueeze(dim=-1).unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 3, 32, 64)
+            self.test_labels = self.test_labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
+            # just compare the labels, don't compare the order
+            self.test_labels, _ = self.test_labels.sort(dim=-1)
+
+            self.test_data = self.test_data.numpy()
             self.test_data = self.test_data.transpose((0, 2, 3, 1))  # convert to HWC
 
     def __getitem__(self, index):

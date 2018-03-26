@@ -37,11 +37,11 @@ def download_url(url, root, filename, md5):
         pass
     else:
         try:
-            print('Downloading ' + url + ' to ' + fpath)
+            print('Downloading ' + url)
             urllib.request.urlretrieve(url, fpath)
         except:
             if url[:5] == 'https':
                 url = url.replace('https:', 'http:')
                 print('Failed download. Trying https -> http instead.'
-                      ' Downloading ' + url + ' to ' + fpath)
+                      ' Downloading ' + url)
                 urllib.request.urlretrieve(url, fpath)

@@ -109,8 +109,6 @@ class MNIST(data.Dataset):
             os.unlink(file_path)
 
         # process and save as torch files
-        print('Processing...')
-
         training_set = (
             read_image_file(os.path.join(self.root, self.raw_folder, 'train-images-idx3-ubyte')),
             read_label_file(os.path.join(self.root, self.raw_folder, 'train-labels-idx1-ubyte'))
@@ -123,8 +121,6 @@ class MNIST(data.Dataset):
             torch.save(training_set, f)
         with open(os.path.join(self.root, self.processed_folder, self.test_file), 'wb') as f:
             torch.save(test_set, f)
-
-        print('Done!')
 
 
 class FashionMNIST(MNIST):
