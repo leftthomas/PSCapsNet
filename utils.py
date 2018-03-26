@@ -88,6 +88,15 @@ class GradCam:
         return heat_maps
 
 
-def get_iterator(mode, data_type, batch_size=100):
+def get_iterator(data_type, mode, batch_size=100):
     data = data_set[data_type](root='data/' + data_type, mode=mode, transform=transforms.ToTensor(), download=True)
     return DataLoader(dataset=data, batch_size=batch_size, shuffle=mode, num_workers=4)
+
+
+if __name__ == '__main__':
+    mnist = get_iterator(data_type='MNIST', mode='test_multi')
+    fashion_mnist = get_iterator(data_type='FashionMNIST', mode='test_multi')
+    svhn = get_iterator(data_type='SVHN', mode='test_multi')
+    cifar10 = get_iterator(data_type='CIFAR10', mode='test_multi')
+    cifar100 = get_iterator(data_type='CIFAR100', mode='test_multi')
+    stl10 = get_iterator(data_type='STL10', mode='test_multi')

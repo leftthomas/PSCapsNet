@@ -62,7 +62,7 @@ def on_end_epoch(state):
 
     reset_meters()
 
-    engine.test(processor, get_iterator('test_single', DATA_TYPE, BATCH_SIZE))
+    engine.test(processor, get_iterator(DATA_TYPE, 'test_single', BATCH_SIZE))
 
     test_single_loss_logger.log(state['epoch'], meter_loss.value()[0])
     test_single_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
@@ -75,7 +75,7 @@ def on_end_epoch(state):
 
     # reset_meters()
     #
-    # engine.test(processor, get_iterator('test_multi', DATA_TYPE, BATCH_SIZE))
+    # engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE))
     #
     # test_multi_loss_logger.log(state['epoch'], meter_loss.value()[0])
     # test_multi_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
@@ -86,7 +86,7 @@ def on_end_epoch(state):
     #     state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
     # features visualization
-    test_multi_image, _ = next(iter(get_iterator('test_multi', DATA_TYPE, 8)))
+    test_multi_image, _ = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
     test_multi_image_logger.log(make_grid(test_multi_image, nrow=2, normalize=True).numpy())
     if torch.cuda.is_available():
         test_multi_image = test_multi_image.cuda()
@@ -170,4 +170,4 @@ if __name__ == '__main__':
     engine.hooks['on_start_epoch'] = on_start_epoch
     engine.hooks['on_end_epoch'] = on_end_epoch
 
-    engine.train(processor, get_iterator('train', DATA_TYPE, BATCH_SIZE), maxepoch=NUM_EPOCHS, optimizer=optimizer)
+    engine.train(processor, get_iterator(DATA_TYPE, 'train', BATCH_SIZE), maxepoch=NUM_EPOCHS, optimizer=optimizer)
