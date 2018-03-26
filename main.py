@@ -87,11 +87,11 @@ def on_end_epoch(state):
 
     # features visualization
     test_multi_image, _ = next(iter(get_iterator('test_multi', DATA_TYPE, 8)))
-    test_multi_image_logger.log(make_grid(test_multi_image, nrow=4, normalize=True).numpy())
+    test_multi_image_logger.log(make_grid(test_multi_image, nrow=2, normalize=True).numpy())
     if torch.cuda.is_available():
         test_multi_image = test_multi_image.cuda()
     feature_image = grad_cam(test_multi_image)
-    multi_feature_image_logger.log(make_grid(feature_image, nrow=4, normalize=True).numpy())
+    multi_feature_image_logger.log(make_grid(feature_image, nrow=2, normalize=True).numpy())
 
     # save model
     torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))

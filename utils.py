@@ -4,16 +4,10 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-from torch.utils.data import ConcatDataset
 from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST, STL10, SVHN
 
-from models.cifar10 import CIFAR10Net
-from models.cifar100 import CIFAR100Net
-from models.fashionmnist import FashionMNISTNet
-from models.mnist import MNISTNet
-from models.stl10 import STL10Net
-from models.svhn import SVHNNet
+from datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST, STL10, SVHN
+from models import CIFAR10Net, CIFAR100Net, FashionMNISTNet, MNISTNet, STL10Net, SVHNNet
 
 CLASS_NAME = {'MNIST': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
               'FashionMNIST': ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker',
@@ -95,30 +89,5 @@ class GradCam:
 
 
 def get_iterator(mode, data_type, batch_size=100):
-    if (data_type == 'STL10') or (data_type == 'SVHN'):
-        if mode == 'train':
-            data = data_set[data_type](root='data/' + data_type, split='train', transform=transforms.ToTensor(),
-                                       download=True)
-        elif mode == 'test_single':
-            data = data_set[data_type](root='data/' + data_type, split='test', transform=transforms.ToTensor(),
-                                       download=True)
-        else:
-            # test_multi
-            data = data_set[data_type](root='data/' + data_type, split='test', transform=transforms.ToTensor(),
-                                       download=True)
-            data = ConcatDataset([data, data])
-
-    else:
-        if mode == 'train':
-            data = data_set[data_type](root='data/' + data_type, train=True, transform=transforms.ToTensor(),
-                                       download=True)
-        elif mode == 'test_single':
-            data = data_set[data_type](root='data/' + data_type, train=False, transform=transforms.ToTensor(),
-                                       download=True)
-        else:
-            # test_multi
-            data = data_set[data_type](root='data/' + data_type, train=False, transform=transforms.ToTensor(),
-                                       download=True)
-            data = ConcatDataset([data, data])
-
+    data = data_set[data_type](root='data/' + data_type, mode=mode, transform=transforms.ToTensor(), download=True)
     return DataLoader(dataset=data, batch_size=batch_size, shuffle=mode, num_workers=4)
