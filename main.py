@@ -52,30 +52,26 @@ def on_start_epoch(state):
 
 
 def on_end_epoch(state):
-    print('[Epoch %d] Training Loss: %.4f Top1 Accuracy: %.2f%% Top5 Accuracy: %.2f%%' % (
-        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0], meter_accuracy.value()[1]))
+    print('[Epoch %d] Training Loss: %.4f Training Accuracy: %.2f%%' % (
+        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
     train_loss_logger.log(state['epoch'], meter_loss.value()[0])
-    train_top1_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    train_top5_accuracy_logger.log(state['epoch'], meter_accuracy.value()[1])
+    train_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
     results['train_loss'].append(meter_loss.value()[0])
-    results['train_top1_accuracy'].append(meter_accuracy.value()[0])
-    results['train_top5_accuracy'].append(meter_accuracy.value()[1])
+    results['train_accuracy'].append(meter_accuracy.value()[0])
 
     reset_meters()
 
     engine.test(processor, get_iterator(False, DATA_TYPE, BATCH_SIZE))
 
     test_loss_logger.log(state['epoch'], meter_loss.value()[0])
-    test_top1_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    test_top5_accuracy_logger.log(state['epoch'], meter_accuracy.value()[1])
+    test_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
     confusion_logger.log(confusion_meter.value())
     results['test_loss'].append(meter_loss.value()[0])
-    results['test_top1_accuracy'].append(meter_accuracy.value()[0])
-    results['test_top5_accuracy'].append(meter_accuracy.value()[1])
+    results['test_accuracy'].append(meter_accuracy.value()[0])
 
-    print('[Epoch %d] Testing Loss: %.4f Top1 Accuracy: %.2f%% Top5 Accuracy: %.2f%%' % (
-        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0], meter_accuracy.value()[1]))
+    print('[Epoch %d] Testing Loss: %.4f Testing Accuracy: %.2f%%' % (
+        state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
     torch.save(model.state_dict(), 'epochs/%s_%d.pth' % (DATA_TYPE, state['epoch']))
 
@@ -84,10 +80,7 @@ def on_end_epoch(state):
         out_path = 'statistics/'
         data_frame = pd.DataFrame(
             data={'train_loss': results['train_loss'], 'test_loss': results['test_loss'],
-                  'train_top1_accuracy': results['train_top1_accuracy'],
-                  'test_top1_accuracy': results['test_top1_accuracy'],
-                  'train_top5_accuracy': results['train_top5_accuracy'],
-                  'test_top5_accuracy': results['test_top5_accuracy']},
+                  'train_accuracy': results['train_accuracy'], 'test_accuracy': results['test_accuracy']},
             index=range(1, state['epoch'] + 1))
         data_frame.to_csv(out_path + DATA_TYPE + '_results.csv', index_label='epoch')
 
@@ -117,8 +110,7 @@ if __name__ == '__main__':
     BATCH_SIZE = opt.batch_size
     NUM_EPOCHS = opt.num_epochs
 
-    results = {'train_loss': [], 'test_loss': [], 'train_top1_accuracy': [], 'test_top1_accuracy': [],
-               'train_top5_accuracy': [], 'test_top5_accuracy': []}
+    results = {'train_loss': [], 'test_loss': [], 'train_accuracy': [], 'test_accuracy': []}
 
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
@@ -138,15 +130,13 @@ if __name__ == '__main__':
 
     engine = Engine()
     meter_loss = tnt.meter.AverageValueMeter()
-    meter_accuracy = tnt.meter.ClassErrorMeter(topk=[1, 5], accuracy=True)
+    meter_accuracy = tnt.meter.ClassErrorMeter(accuracy=True)
     confusion_meter = tnt.meter.ConfusionMeter(CLASSES, normalized=True)
 
     train_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Loss'})
-    train_top1_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Top1 Accuracy'})
-    train_top5_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Top5 Accuracy'})
+    train_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Accuracy'})
     test_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Loss'})
-    test_top1_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Top1 Accuracy'})
-    test_top5_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Top5 Accuracy'})
+    test_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Accuracy'})
     confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
                                     opts={'title': 'Confusion Matrix', 'columnnames': class_name,
                                           'rownames': class_name})

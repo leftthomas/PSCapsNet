@@ -4,9 +4,9 @@ from torch import nn
 from resnet import resnet20
 
 
-class SVHNCapsuleNet(nn.Module):
+class SVHNNet(nn.Module):
     def __init__(self, num_iterations=3):
-        super(SVHNCapsuleNet, self).__init__()
+        super(SVHNNet, self).__init__()
 
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         layers = []
@@ -35,6 +35,6 @@ class SVHNCapsuleNet(nn.Module):
 
 
 if __name__ == '__main__':
-    model = SVHNCapsuleNet()
+    model = SVHNNet()
     for m in model.named_children():
         print(m)

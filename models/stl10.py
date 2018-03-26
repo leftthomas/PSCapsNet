@@ -4,9 +4,9 @@ from torch import nn
 from resnet import resnet20
 
 
-class STL10CapsuleNet(nn.Module):
+class STL10Net(nn.Module):
     def __init__(self, num_iterations=3):
-        super(STL10CapsuleNet, self).__init__()
+        super(STL10Net, self).__init__()
 
         self.conv1 = nn.Conv2d(3, 16, kernel_size=7, stride=2, padding=3, bias=False)
         layers = []
@@ -35,6 +35,6 @@ class STL10CapsuleNet(nn.Module):
 
 
 if __name__ == '__main__':
-    model = STL10CapsuleNet()
+    model = STL10Net()
     for m in model.named_children():
         print(m)

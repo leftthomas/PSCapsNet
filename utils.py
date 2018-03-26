@@ -7,12 +7,12 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST, STL10, SVHN
 
-from models.cifar10 import CIFAR10CapsuleNet
-from models.cifar100 import CIFAR100CapsuleNet
-from models.fashionmnist import FashionMNISTCapsuleNet
-from models.mnist import MNISTCapsuleNet
-from models.stl10 import STL10CapsuleNet
-from models.svhn import SVHNCapsuleNet
+from models.cifar10 import CIFAR10Net
+from models.cifar100 import CIFAR100Net
+from models.fashionmnist import FashionMNISTNet
+from models.mnist import MNISTNet
+from models.stl10 import STL10Net
+from models.svhn import SVHNNet
 
 CLASS_NAME = {'MNIST': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
               'FashionMNIST': ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker',
@@ -35,8 +35,8 @@ CLASS_NAME = {'MNIST': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
 
 data_set = {'MNIST': MNIST, 'FashionMNIST': FashionMNIST, 'SVHN': SVHN, 'CIFAR10': CIFAR10, 'CIFAR100': CIFAR100,
             'STL10': STL10}
-models = {'MNIST': MNISTCapsuleNet, 'FashionMNIST': FashionMNISTCapsuleNet, 'SVHN': SVHNCapsuleNet,
-          'CIFAR10': CIFAR10CapsuleNet, 'CIFAR100': CIFAR100CapsuleNet, 'STL10': STL10CapsuleNet}
+models = {'MNIST': MNISTNet, 'FashionMNIST': FashionMNISTNet, 'SVHN': SVHNNet, 'CIFAR10': CIFAR10Net,
+          'CIFAR100': CIFAR100Net, 'STL10': STL10Net}
 
 
 class GradCam:

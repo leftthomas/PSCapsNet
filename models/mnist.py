@@ -4,9 +4,9 @@ from torch import nn
 from resnet import resnet20
 
 
-class MNISTCapsuleNet(nn.Module):
+class MNISTNet(nn.Module):
     def __init__(self, num_iterations=3):
-        super(MNISTCapsuleNet, self).__init__()
+        super(MNISTNet, self).__init__()
 
         self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1, bias=False)
         layers = []
@@ -35,6 +35,6 @@ class MNISTCapsuleNet(nn.Module):
 
 
 if __name__ == '__main__':
-    model = MNISTCapsuleNet()
+    model = MNISTNet()
     for m in model.named_children():
         print(m)
