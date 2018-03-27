@@ -17,17 +17,17 @@ class MNISTNet(nn.Module):
                 continue
             layers.append(module)
         self.features = nn.Sequential(*layers)
-        # self.pool = nn.AdaptiveAvgPool2d(output_size=1)
+        self.pool = nn.AdaptiveAvgPool2d(output_size=4)
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(in_capsules=7 * 7 * 8, out_capsules=10, in_length=8, out_length=16,
+            self.classifier = CapsuleLinear(in_capsules=4 * 4 * 8, out_capsules=10, in_length=8, out_length=16,
                                             routing_type='contract', share_weight=False, num_iterations=num_iterations)
         else:
-            self.classifier = nn.Linear(in_features=49 * 64, out_features=10)
+            self.classifier = nn.Linear(in_features=16 * 64, out_features=10)
 
     def forward(self, x):
         out = self.conv1(x)
         out = self.features(out)
-        # out = self.pool(out)
+        out = self.pool(out)
 
         if self.net_mode == 'Capsule':
             out = out.view(*out.size()[:2], -1)
