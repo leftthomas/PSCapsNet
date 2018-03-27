@@ -26,7 +26,11 @@ def processor(sample):
     model.train(training)
 
     classes = model(data)
-    loss = loss_criterion(classes, labels)
+    # test multi, don't compute loss
+    if labels.dim() == 3:
+        loss = 0
+    else:
+        loss = loss_criterion(classes, labels)
     return loss, classes
 
 
@@ -60,30 +64,23 @@ def on_end_epoch(state):
     results['train_loss'].append(meter_loss.value()[0])
     results['train_accuracy'].append(meter_accuracy.value()[0])
 
+    # test single
     reset_meters()
-
     engine.test(processor, get_iterator(DATA_TYPE, 'test_single', BATCH_SIZE))
-
     test_single_loss_logger.log(state['epoch'], meter_loss.value()[0])
     test_single_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
     confusion_logger.log(confusion_meter.value())
     results['test_single_loss'].append(meter_loss.value()[0])
     results['test_single_accuracy'].append(meter_accuracy.value()[0])
-
     print('[Epoch %d] Testing Single Loss: %.4f Testing Single Accuracy: %.2f%%' % (
         state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
-    # reset_meters()
-    #
-    # engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE))
-    #
-    # test_multi_loss_logger.log(state['epoch'], meter_loss.value()[0])
-    # test_multi_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    # results['test_multi_loss'].append(meter_loss.value()[0])
-    # results['test_multi_accuracy'].append(meter_accuracy.value()[0])
-    #
-    # print('[Epoch %d] Testing Multi Loss: %.4f Testing Multi Accuracy: %.2f%%' % (
-    #     state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
+    # test multi
+    reset_meters()
+    engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE))
+    test_multi_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
+    results['test_multi_accuracy'].append(meter_accuracy.value()[0])
+    print('[Epoch %d] Testing Multi Accuracy: %.2f%%' % (state['epoch'], meter_accuracy.value()[0]))
 
     # features visualization
     test_multi_image, _ = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
@@ -102,7 +99,6 @@ def on_end_epoch(state):
             data={'train_loss': results['train_loss'], 'train_accuracy': results['train_accuracy'],
                   'test_single_loss': results['test_single_loss'],
                   'test_single_accuracy': results['test_single_accuracy'],
-                  'test_multi_loss': results['test_multi_loss'],
                   'test_multi_accuracy': results['test_multi_accuracy']},
             index=range(1, state['epoch'] + 1))
         data_frame.to_csv(out_path + DATA_TYPE + '_' + NET_MODE + '_results.csv', index_label='epoch')
@@ -128,7 +124,7 @@ if __name__ == '__main__':
     NUM_EPOCHS = opt.num_epochs
 
     results = {'train_loss': [], 'train_accuracy': [], 'test_single_loss': [], 'test_single_accuracy': [],
-               'test_multi_loss': [], 'test_multi_accuracy': []}
+               'test_multi_accuracy': []}
 
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
@@ -155,7 +151,6 @@ if __name__ == '__main__':
     train_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Accuracy'})
     test_single_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Single Loss'})
     test_single_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Single Accuracy'})
-    test_multi_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Multi Loss'})
     test_multi_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Multi Accuracy'})
     confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
                                     opts={'title': 'Confusion Matrix', 'columnnames': class_name,
