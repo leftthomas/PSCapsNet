@@ -93,7 +93,7 @@ def on_end_epoch(state):
         state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
     # features visualization
-    test_multi_image, _ = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
+    test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
     test_multi_image_logger.log(make_grid(test_multi_image, nrow=2, normalize=True).numpy())
     if torch.cuda.is_available():
         test_multi_image = test_multi_image.cuda()
