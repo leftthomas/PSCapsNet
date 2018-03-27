@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
+from torch import nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchnet.meter.meter import Meter
@@ -35,6 +36,17 @@ models = {'MNIST': MNISTNet, 'FashionMNIST': FashionMNISTNet, 'SVHN': SVHNNet, '
           'CIFAR100': CIFAR100Net, 'STL10': STL10Net}
 
 
+class MarginLoss(nn.Module):
+    def __init__(self):
+        super(MarginLoss, self).__init__()
+
+    def forward(self, classes, labels):
+        left = F.relu(0.9 - classes, inplace=True) ** 2
+        right = F.relu(classes - 0.1, inplace=True) ** 2
+        loss = labels * left + 0.25 * (1 - labels) * right
+        return loss.mean()
+
+
 class GradCam:
     def __init__(self, model):
         self.model = model.eval()
@@ -65,9 +77,9 @@ class GradCam:
                     feature.register_hook(self.save_gradient)
                     self.feature = feature
             if self.model.net_mode == 'Capsule':
-                classes = feature.sum(dim=-1)
+                classes = feature.norm(dim=-1)
             else:
-                classes = feature
+                classes = F.sigmoid(feature)
             one_hot, _ = classes.max(dim=-1)
             self.model.zero_grad()
             one_hot.backward()
@@ -107,16 +119,14 @@ class MultiClassAccuracyMeter(Meter):
 
     def add(self, output, target):
         if torch.is_tensor(output):
-            output = output.cpu().squeeze().numpy()
+            output = output.cpu().numpy()
         if torch.is_tensor(target):
-            target = target.cpu().squeeze().numpy()
-
-        pred = output.argsort()[:, -2:]
-        pred.sort(axis=1)
-        self.sum += 1. * (np.prod(pred == target, axis=1)).sum()
+            target = target.cpu().numpy()
         greater = np.sort(output, axis=1)[:, -2] > 0.5
+        pred = output.argsort()[:, -2:].sort(axis=1)
+        self.sum += 1. * (np.prod(pred == target, axis=1)).sum()
         self.confidence_sum += 1. * (np.prod(pred == target, axis=1) * greater).sum()
-        self.n += output.shape[0]
+        self.n += output.size(0)
 
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0

@@ -51,7 +51,7 @@ class MNIST(data.Dataset):
             self.test_data = self.test_data.masked_select(mask.unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 28, 56)
             self.test_labels = self.test_labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
             # just compare the labels, don't compare the order
-            self.test_labels, _ = self.test_labels.sort(dim=-1)
+            self.test_labels = self.test_labels.sort(dim=-1)[0]
 
     def __getitem__(self, index):
         if self.mode == 'train':

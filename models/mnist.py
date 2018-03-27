@@ -1,3 +1,4 @@
+import torch.nn.functional as F
 from capsule_layer import CapsuleLinear
 from torch import nn
 
@@ -33,10 +34,10 @@ class MNISTNet(nn.Module):
             out = out.transpose(-1, -2)
             out = out.contiguous().view(out.size(0), -1, 2)
             out = self.classifier(out)
-            classes = out.sum(dim=-1)
+            classes = out.norm(dim=-1)
         else:
             out = out.view(out.size(0), -1)
-            classes = self.classifier(out)
+            classes = F.sigmoid(self.classifier(out))
         return classes
 
 

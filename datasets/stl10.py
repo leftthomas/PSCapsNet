@@ -57,7 +57,7 @@ class STL10(CIFAR10):
                                                 .unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 3, 96, 192)
             self.labels = self.labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
             # just compare the labels, don't compare the order
-            self.labels, _ = self.labels.sort(dim=-1)
+            self.labels = self.labels.sort(dim=-1)[0]
             self.data = self.data.numpy()
 
         class_file = os.path.join(self.root, self.base_folder, self.class_names_file)

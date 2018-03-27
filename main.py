@@ -3,7 +3,6 @@ import argparse
 import pandas as pd
 import torch
 import torchnet as tnt
-from torch import nn
 from torch.autograd import Variable
 from torch.optim import Adam
 from torchnet.engine import Engine
@@ -11,11 +10,12 @@ from torchnet.logger import VisdomPlotLogger, VisdomLogger
 from torchvision.utils import make_grid
 from tqdm import tqdm
 
-from utils import get_iterator, CLASS_NAME, models, GradCam, MultiClassAccuracyMeter
+from utils import get_iterator, CLASS_NAME, models, GradCam, MultiClassAccuracyMeter, MarginLoss
 
 
 def processor(sample):
     data, labels, training = sample
+    labels = torch.eye(CLASSES).index_select(dim=0, index=labels)
 
     if torch.cuda.is_available():
         data = data.cuda()
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         CLASSES = 100
 
     model = models[DATA_TYPE](NUM_ITERATIONS, NET_MODE)
-    loss_criterion = nn.CrossEntropyLoss()
+    loss_criterion = MarginLoss()
     grad_cam = GradCam(model)
     if torch.cuda.is_available():
         model.cuda()
