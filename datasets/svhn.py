@@ -62,7 +62,7 @@ class SVHN(data.Dataset):
                 mask.unsqueeze(dim=-1).unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 3, 32, 64)
             self.labels = self.labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
             # just compare the labels, don't compare the order
-            self.labels = self.labels.sort(dim=-1)[0]
+            self.labels = self.labels.sort(dim=-1, descending=True)[0]
             self.data = self.data.numpy()
 
     def __getitem__(self, index):

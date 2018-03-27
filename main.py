@@ -15,7 +15,9 @@ from utils import get_iterator, CLASS_NAME, models, GradCam, MultiClassAccuracyM
 
 def processor(sample):
     data, labels, training = sample
-    labels = torch.eye(CLASSES).index_select(dim=0, index=labels)
+    old_labels = labels
+    if labels.dim() != 2:
+        labels = torch.eye(CLASSES).index_select(dim=0, index=labels)
 
     if torch.cuda.is_available():
         data = data.cuda()
@@ -27,7 +29,7 @@ def processor(sample):
 
     classes = model(data)
     # test multi, don't compute loss
-    if labels.dim() == 2:
+    if old_labels.dim() == 2:
         loss = 0
     else:
         loss = loss_criterion(classes, labels)
