@@ -83,9 +83,12 @@ def on_end_epoch(state):
     # test multi
     reset_meters()
     engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE))
-    test_multi_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value())
-    results['test_multi_accuracy'].append(meter_multi_accuracy.value())
-    print('[Epoch %d] Testing Multi Accuracy: %.2f%%' % (state['epoch'], meter_multi_accuracy.value()))
+    test_multi_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value()[0])
+    test_multi_confidence_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value()[1])
+    results['test_multi_accuracy'].append(meter_multi_accuracy.value()[0])
+    results['test_multi_confidence_accuracy'].append(meter_multi_accuracy.value()[1])
+    print('[Epoch %d] Testing Multi Accuracy: %.2f%% Testing Multi Confidence Accuracy: %.2f%%' % (
+        state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
     # features visualization
     test_multi_image, _ = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
@@ -104,7 +107,8 @@ def on_end_epoch(state):
             data={'train_loss': results['train_loss'], 'train_accuracy': results['train_accuracy'],
                   'test_single_loss': results['test_single_loss'],
                   'test_single_accuracy': results['test_single_accuracy'],
-                  'test_multi_accuracy': results['test_multi_accuracy']},
+                  'test_multi_accuracy': results['test_multi_accuracy'],
+                  'test_multi_confidence_accuracy': results['test_multi_confidence_accuracy']},
             index=range(1, state['epoch'] + 1))
         data_frame.to_csv(out_path + DATA_TYPE + '_' + NET_MODE + '_results.csv', index_label='epoch')
 
@@ -129,7 +133,7 @@ if __name__ == '__main__':
     NUM_EPOCHS = opt.num_epochs
 
     results = {'train_loss': [], 'train_accuracy': [], 'test_single_loss': [], 'test_single_accuracy': [],
-               'test_multi_accuracy': []}
+               'test_multi_accuracy': [], 'test_multi_confidence_accuracy': []}
 
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
@@ -158,6 +162,8 @@ if __name__ == '__main__':
     test_single_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Single Loss'})
     test_single_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Single Accuracy'})
     test_multi_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Multi Accuracy'})
+    test_multi_confidence_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE,
+                                                             opts={'title': 'Test Multi Confidence Accuracy'})
     confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
                                     opts={'title': 'Confusion Matrix', 'columnnames': class_name,
                                           'rownames': class_name})
