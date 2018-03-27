@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
+from torchnet.meter.meter import Meter
 
 from datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST, STL10, SVHN
 from models import CIFAR10Net, CIFAR100Net, FashionMNISTNet, MNISTNet, STL10Net, SVHNNet
@@ -93,3 +94,25 @@ def get_iterator(data_type, mode, batch_size=100):
     data = data_set[data_type](root='data/' + data_type, mode=mode, transform=transforms.ToTensor(), download=True)
     return DataLoader(dataset=data, batch_size=batch_size, shuffle=mode, num_workers=4)
 
+
+class MultiClassAccuracyMeter(Meter):
+    def __init__(self):
+        super(MultiClassAccuracyMeter, self).__init__()
+        self.reset()
+
+    def reset(self):
+        self.sum = 0
+        self.n = 0
+
+    def add(self, output, target):
+        if torch.is_tensor(output):
+            output = output.cpu().squeeze().numpy()
+        if torch.is_tensor(target):
+            target = target.cpu().squeeze().numpy()
+
+        correct = pred == target[:, np.newaxis].repeat(pred.shape[1], 1)
+        self.sum += no - correct[:, 0:k].sum()
+        self.n += no
+
+    def value(self):
+        return (1. - float(self.sum) / self.n) * 100.0

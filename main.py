@@ -11,7 +11,7 @@ from torchnet.logger import VisdomPlotLogger, VisdomLogger
 from torchvision.utils import make_grid
 from tqdm import tqdm
 
-from utils import get_iterator, CLASS_NAME, models, GradCam
+from utils import get_iterator, CLASS_NAME, models, GradCam, MultiClassAccuracyMeter
 
 
 def processor(sample):
@@ -27,7 +27,7 @@ def processor(sample):
 
     classes = model(data)
     # test multi, don't compute loss
-    if labels.dim() == 3:
+    if labels.dim() == 2:
         loss = 0
     else:
         loss = loss_criterion(classes, labels)
@@ -40,14 +40,19 @@ def on_sample(state):
 
 def reset_meters():
     meter_accuracy.reset()
+    meter_multi_accuracy.reset()
     meter_loss.reset()
     confusion_meter.reset()
 
 
 def on_forward(state):
-    meter_accuracy.add(state['output'].data, state['sample'][1])
-    confusion_meter.add(state['output'].data, state['sample'][1])
-    meter_loss.add(state['loss'].data[0])
+    # test multi
+    if state['sample'][1].dim() == 2:
+        meter_multi_accuracy.add(state['output'].data, state['sample'][1])
+    else:
+        meter_accuracy.add(state['output'].data, state['sample'][1])
+        confusion_meter.add(state['output'].data, state['sample'][1])
+        meter_loss.add(state['loss'].data[0])
 
 
 def on_start_epoch(state):
@@ -78,9 +83,9 @@ def on_end_epoch(state):
     # test multi
     reset_meters()
     engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE))
-    test_multi_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    results['test_multi_accuracy'].append(meter_accuracy.value()[0])
-    print('[Epoch %d] Testing Multi Accuracy: %.2f%%' % (state['epoch'], meter_accuracy.value()[0]))
+    test_multi_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value())
+    results['test_multi_accuracy'].append(meter_multi_accuracy.value())
+    print('[Epoch %d] Testing Multi Accuracy: %.2f%%' % (state['epoch'], meter_multi_accuracy.value()))
 
     # features visualization
     test_multi_image, _ = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
@@ -145,6 +150,7 @@ if __name__ == '__main__':
     engine = Engine()
     meter_loss = tnt.meter.AverageValueMeter()
     meter_accuracy = tnt.meter.ClassErrorMeter(accuracy=True)
+    meter_multi_accuracy = MultiClassAccuracyMeter()
     confusion_meter = tnt.meter.ConfusionMeter(CLASSES, normalized=True)
 
     train_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Loss'})
