@@ -18,11 +18,11 @@ class SVHNNet(nn.Module):
             layers.append(module)
         self.features = nn.Sequential(*layers)
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=16, in_capsules=None,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, in_capsules=None,
                                             routing_type='contract', share_weight=True, num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Linear(in_features=128, out_features=10)
+            self.classifier = nn.Linear(in_features=64, out_features=10)
 
     def forward(self, x):
         out = self.conv1(x)
@@ -30,7 +30,7 @@ class SVHNNet(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 128)
+            out = out.contiguous().view(out.size(0), -1, 8)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
