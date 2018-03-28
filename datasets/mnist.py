@@ -3,6 +3,7 @@ import errno
 import os
 import os.path
 
+import numpy as np
 import torch
 import torch.utils.data as data
 from PIL import Image
@@ -42,16 +43,18 @@ class MNIST(data.Dataset):
             # test_multi
             self.test_data, self.test_labels = torch.load(
                 os.path.join(self.root, self.processed_folder, self.test_file))
-            idx = torch.randperm(len(self.test_data))
-            self.test_data = torch.cat([self.test_data, torch.index_select(self.test_data, dim=0, index=idx)], dim=-1)
-            self.test_labels = torch.stack(
-                [self.test_labels, torch.index_select(self.test_labels, dim=0, index=idx)]).t()
+
+            x_test, y_test = self.test_data.numpy(), self.test_labels.numpy()
+            idx = list(range(len(x_test)))
+            np.random.shuffle(idx)
+            X_test = np.concatenate([x_test, x_test[idx]], 1)
+            Y_test = np.vstack([y_test, y_test[idx]]).T
             # make sure the two number is different
-            mask = torch.ne(self.test_labels[:, 0], self.test_labels[:, 1])
-            self.test_data = self.test_data.masked_select(mask.unsqueeze(dim=-1).unsqueeze(dim=-1)).view(-1, 28, 56)
-            self.test_labels = self.test_labels.masked_select(mask.unsqueeze(dim=-1)).view(-1, 2)
+            X_test = X_test[Y_test[:, 0] != Y_test[:, 1]]
+            Y_test = Y_test[Y_test[:, 0] != Y_test[:, 1]]
             # just compare the labels, don't compare the order
-            self.test_labels = self.test_labels.sort(dim=-1, descending=True)[0]
+            Y_test.sort(axis=1)
+            self.test_data, self.test_labels = torch.from_numpy(X_test), torch.from_numpy(Y_test)
 
     def __getitem__(self, index):
         if self.mode == 'train':
