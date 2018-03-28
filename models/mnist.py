@@ -14,7 +14,7 @@ class MNISTNet(nn.Module):
                                       nn.Conv2d(16, 32, kernel_size=3, padding=1),
                                       nn.ReLU(), nn.Conv2d(32, 32, kernel_size=3, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=4, in_capsules=None,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=16, in_capsules=None,
                                             routing_type='contract', share_weight=True, num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
