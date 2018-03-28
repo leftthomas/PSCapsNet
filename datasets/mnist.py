@@ -54,7 +54,7 @@ class MNIST(data.Dataset):
             Y_test = Y_test[Y_test[:, 0] != Y_test[:, 1]]
             # just compare the labels, don't compare the order
             Y_test.sort(axis=1)
-            self.test_data, self.test_labels = torch.from_numpy(X_test), torch.from_numpy(Y_test)
+            self.test_data, self.test_labels = torch.from_numpy(X_test), Y_test
 
     def __getitem__(self, index):
         if self.mode == 'train':
