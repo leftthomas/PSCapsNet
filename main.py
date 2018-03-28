@@ -44,7 +44,7 @@ def reset_meters():
     meter_accuracy.reset()
     meter_multi_accuracy.reset()
     meter_loss.reset()
-    confusion_meter.reset()
+    meter_confusion.reset()
 
 
 def on_forward(state):
@@ -53,7 +53,7 @@ def on_forward(state):
         meter_multi_accuracy.add(state['output'].data, state['sample'][1])
     else:
         meter_accuracy.add(state['output'].data, state['sample'][1])
-        confusion_meter.add(state['output'].data, state['sample'][1])
+        meter_confusion.add(state['output'].data, state['sample'][1])
         meter_loss.add(state['loss'].data[0])
 
 
@@ -76,7 +76,7 @@ def on_end_epoch(state):
     engine.test(processor, get_iterator(DATA_TYPE, 'test_single', BATCH_SIZE))
     test_single_loss_logger.log(state['epoch'], meter_loss.value()[0])
     test_single_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    confusion_logger.log(confusion_meter.value())
+    confusion_logger.log(meter_confusion.value())
     results['test_single_loss'].append(meter_loss.value()[0])
     results['test_single_accuracy'].append(meter_accuracy.value()[0])
     print('[Epoch %d] Testing Single Loss: %.4f Testing Single Accuracy: %.2f%%' % (
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     meter_loss = tnt.meter.AverageValueMeter()
     meter_accuracy = tnt.meter.ClassErrorMeter(accuracy=True)
     meter_multi_accuracy = MultiClassAccuracyMeter()
-    confusion_meter = tnt.meter.ConfusionMeter(CLASSES, normalized=True)
+    meter_confusion = tnt.meter.ConfusionMeter(CLASSES, normalized=True)
 
     train_loss_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Loss'})
     train_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Train Accuracy'})
