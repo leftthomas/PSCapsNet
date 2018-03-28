@@ -47,7 +47,7 @@ class MNIST(data.Dataset):
             x_test, y_test = self.test_data.numpy(), self.test_labels.numpy()
             idx = list(range(len(x_test)))
             np.random.shuffle(idx)
-            X_test = np.concatenate([x_test, x_test[idx]], 1)
+            X_test = np.concatenate([x_test, x_test[idx]], 2)
             Y_test = np.vstack([y_test, y_test[idx]]).T
             # make sure the two number is different
             X_test = X_test[Y_test[:, 0] != Y_test[:, 1]]
