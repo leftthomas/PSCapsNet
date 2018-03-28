@@ -115,16 +115,13 @@ class MultiClassAccuracyMeter(Meter):
         self.n = 0
 
     def add(self, output, target):
-        pred, index = output.cpu().topk(k=2, dim=-1)
-        acc = target.cpu().eq(index.sort(dim=-1, descending=True)[0]).prod(dim=-1)
-        confidence = pred.ge(0.5).prod(dim=-1)
-        self.sum += acc.sum()
-        self.confidence_sum += (acc * confidence).sum()
         self.n += output.size(0)
+        Y_pred = output.cpu().numpy()
+        greater = np.sort(Y_pred, axis=1)[:, -2] > 0.5
+        Y_pred = Y_pred.argsort()[:, -2:]
+        Y_pred.sort(axis=1)
+        self.sum += 1. * (np.prod(Y_pred == target, axis=1)).sum()
+        self.confidence_sum += 1. * (np.prod(Y_pred == target, axis=1) * greater).sum()
 
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0
-
-
-if __name__ == '__main__':
-    stl10 = get_iterator(data_type='STL10', mode='test_multi')
