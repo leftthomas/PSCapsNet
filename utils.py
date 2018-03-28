@@ -127,5 +127,4 @@ class MultiClassAccuracyMeter(Meter):
 
 
 if __name__ == '__main__':
-    cifar100 = get_iterator(data_type='CIFAR100', mode='test_multi')
-    # stl10 = get_iterator(data_type='STL10', mode='test_multi')
+    stl10 = get_iterator(data_type='STL10', mode='test_multi')
