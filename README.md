@@ -22,7 +22,7 @@ conda install tqdm
 
 ## Usage
 ```
-python -m visdom.server -logging_level WARNING & python main.py --data_type FashionMNIST --num_epochs 300
+python -m visdom.server -logging_level WARNING & python main.py --data_type CIFAR10 --net_mode CNN --num_epochs 300
 optional arguments:
 --data_type                   dataset type [default value is 'MNIST'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'])
 --net_mode                    network mode [default value is 'Capsule'](choices:['Capsule', 'CNN'])
