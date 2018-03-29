@@ -116,12 +116,15 @@ class MultiClassAccuracyMeter(Meter):
 
     def add(self, output, target):
         self.n += output.size(0)
-        Y_pred = output.cpu().numpy()
-        greater = np.sort(Y_pred, axis=1)[:, -2] > 0.5
-        Y_pred = Y_pred.argsort()[:, -2:]
-        Y_pred.sort(axis=1)
-        self.sum += 1. * (np.prod(Y_pred == target, axis=1)).sum()
-        self.confidence_sum += 1. * (np.prod(Y_pred == target, axis=1) * greater).sum()
+        if torch.is_tensor(output):
+            output = output.cpu().numpy()
+        if torch.is_tensor(target):
+            target = target.cpu().numpy()
+        greater = np.sort(output, axis=1)[:, -2] > 0.5
+        output = output.argsort()[:, -2:]
+        output.sort(axis=1)
+        self.sum += 1. * (np.prod(output == target, axis=1)).sum()
+        self.confidence_sum += 1. * (np.prod(output == target, axis=1) * greater).sum()
 
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0
