@@ -8,11 +8,11 @@ class MNISTNet(nn.Module):
         super(MNISTNet, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=3), nn.ReLU())
-        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3), nn.ReLU(),
+        self.conv1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=3, padding=1), nn.ReLU())
+        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.ReLU(),
                                       nn.AvgPool2d(kernel_size=2),
-                                      nn.Conv2d(64, 128, kernel_size=3), nn.ReLU(),
-                                      nn.Conv2d(128, 128, kernel_size=3), nn.ReLU())
+                                      nn.Conv2d(64, 128, kernel_size=3, padding=1), nn.ReLU(),
+                                      nn.Conv2d(128, 128, kernel_size=3, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
             self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=16, in_capsules=None,
                                             routing_type='contract', share_weight=True, num_iterations=num_iterations)
