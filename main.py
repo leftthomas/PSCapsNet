@@ -144,10 +144,10 @@ if __name__ == '__main__':
 
     model = models[DATA_TYPE](NUM_ITERATIONS, NET_MODE)
     loss_criterion = MarginLoss()
-    grad_cam = GradCam(model)
     if torch.cuda.is_available():
         model.cuda()
         loss_criterion.cuda()
+    grad_cam = GradCam(model)
 
     print("# parameters:", sum(param.numel() for param in model.parameters()))
 

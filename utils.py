@@ -83,7 +83,7 @@ class GradCam:
             one_hot.backward()
 
             weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
-            mask = F.relu(1 + (weight * self.feature).sum(dim=1)).squeeze(0)
+            mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
             mask = cv2.resize(mask.data.cpu().numpy(), image_size)
             mask = mask - np.min(mask)
             if np.max(mask) != 0:
@@ -94,7 +94,7 @@ class GradCam:
             cam = cam - np.min(cam)
             if np.max(cam) != 0:
                 cam = cam / np.max(cam)
-            heat_maps.append(transforms.ToTensor()(np.uint8(255 * cam)))
+            heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
         heat_maps = torch.stack(heat_maps)
         return heat_maps
 
