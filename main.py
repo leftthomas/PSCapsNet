@@ -94,7 +94,6 @@ def on_end_epoch(state):
 
     # features visualization
     test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
-    test_multi_image_logger.log(make_grid(test_multi_image, nrow=2, normalize=True).numpy())
     if torch.cuda.is_available():
         test_multi_image = test_multi_image.cuda()
     feature_image = grad_cam(test_multi_image)
@@ -169,8 +168,6 @@ if __name__ == '__main__':
     confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
                                     opts={'title': 'Confusion Matrix', 'columnnames': class_name,
                                           'rownames': class_name})
-    test_multi_image_logger = VisdomLogger('image', env=DATA_TYPE,
-                                           opts={'title': 'Test Multi Image', 'width': 371, 'height': 335})
     multi_feature_image_logger = VisdomLogger('image', env=DATA_TYPE,
                                               opts={'title': 'Multi Feature Image', 'width': 371, 'height': 335})
 
