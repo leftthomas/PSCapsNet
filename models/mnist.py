@@ -18,9 +18,8 @@ class MNISTNet(nn.Module):
                                             routing_type='contract', share_weight=True, num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=128),
-                                            nn.ReLU(),
-                                            nn.Linear(in_features=128, out_features=10), )
+            self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=128), nn.ReLU(),
+                                            nn.Linear(in_features=128, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
@@ -37,9 +36,3 @@ class MNISTNet(nn.Module):
             out = self.classifier(out)
             classes = F.sigmoid(out)
         return classes
-
-
-if __name__ == '__main__':
-    model = MNISTNet()
-    for m in model.named_children():
-        print(m)
