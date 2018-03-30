@@ -15,7 +15,7 @@ class STL10Net(nn.Module):
                                       nn.Conv2d(128, 128, kernel_size=3, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
             self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=16, in_capsules=None,
-                                            routing_type='contract', share_weight=True, num_iterations=num_iterations)
+                                            share_weight=True, routing_type='dynamic', num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
             self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=128), nn.ReLU(),
