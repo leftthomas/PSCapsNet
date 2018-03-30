@@ -80,7 +80,7 @@ class GradCam:
                 classes = F.sigmoid(feature)
             one_hot, _ = classes.topk(k=2, dim=-1)
             self.model.zero_grad()
-            one_hot.backward(torch.ones(one_hot.size(0)))
+            one_hot.backward(torch.ones_like(one_hot[:, 0]))
 
             weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
             mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
