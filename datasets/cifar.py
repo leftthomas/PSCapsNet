@@ -172,3 +172,7 @@ class CIFAR100(CIFAR10):
     test_list = [
         ['test', 'f0ef6b0ae62326f3e7ffdfab6717acfc'],
     ]
+
+
+if __name__ == '__main__':
+    CIFAR10(root='data/FashionMNIST', mode='test_multi', download=True)

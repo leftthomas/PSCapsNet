@@ -19,68 +19,45 @@ class MNIST(data.Dataset):
     raw_folder = 'raw'
     processed_folder = 'processed'
     training_file = 'training.pt'
-    test_file = 'test.pt'
+    test_single_file = 'test_single.pt'
+    test_multi_file = 'test_multi.pt'
 
-    def __init__(self, root, mode='train', transform=None, target_transform=None, download=False):
+    def __init__(self, root, mode='train', transform=None, download=False):
         self.root = os.path.expanduser(root)
-        self.transform = transform
-        self.target_transform = target_transform
         self.mode = mode
+        self.transform = transform
 
         if download:
             self.download()
 
         if not self._check_exists():
-            raise RuntimeError('Dataset not found.' + ' You can use download=True to download it')
+            raise RuntimeError('dataset not found, you can use download=True to download it')
 
         if self.mode == 'train':
-            self.train_data, self.train_labels = torch.load(
-                os.path.join(self.root, self.processed_folder, self.training_file))
+            self.data, self.labels = torch.load(os.path.join(self.root, self.processed_folder, self.training_file))
         elif self.mode == 'test_single':
-            self.test_data, self.test_labels = torch.load(
-                os.path.join(self.root, self.processed_folder, self.test_file))
+            self.data, self.labels = torch.load(os.path.join(self.root, self.processed_folder, self.test_single_file))
+        elif self.mode == 'test_multi':
+            self.data, self.labels = torch.load(os.path.join(self.root, self.processed_folder, self.test_multi_file))
         else:
-            # test_multi
-            self.test_data, self.test_labels = torch.load(
-                os.path.join(self.root, self.processed_folder, self.test_file))
-
-            x_test, y_test = self.test_data.numpy(), self.test_labels.numpy()
-            idx = list(range(len(x_test)))
-            np.random.shuffle(idx)
-            X_test = np.concatenate([x_test, x_test[idx]], 2)
-            Y_test = np.vstack([y_test, y_test[idx]]).T
-            # make sure the two number is different
-            X_test = X_test[Y_test[:, 0] != Y_test[:, 1]]
-            Y_test = Y_test[Y_test[:, 0] != Y_test[:, 1]]
-            # just compare the labels, don't compare the order
-            Y_test.sort(axis=1)
-            self.test_data, self.test_labels = torch.from_numpy(X_test), Y_test
+            raise RuntimeError('mode parameter must between train, test_single and test_multi')
 
     def __getitem__(self, index):
-        if self.mode == 'train':
-            img, target = self.train_data[index], self.train_labels[index]
-        else:
-            img, target = self.test_data[index], self.test_labels[index]
-
+        img, target = self.data[index], self.labels[index]
         img = Image.fromarray(img.numpy(), mode='L')
 
         if self.transform is not None:
             img = self.transform(img)
 
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-
         return img, target
 
     def __len__(self):
-        if self.mode == 'train':
-            return len(self.train_data)
-        else:
-            return len(self.test_data)
+        return len(self.data)
 
     def _check_exists(self):
-        return os.path.exists(os.path.join(self.root, self.processed_folder, self.training_file)) and \
-               os.path.exists(os.path.join(self.root, self.processed_folder, self.test_file))
+        return os.path.exists(os.path.join(self.root, self.processed_folder, self.training_file)) and os.path.exists(
+            os.path.join(self.root, self.processed_folder, self.test_single_file)) and os.path.exists(
+            os.path.join(self.root, self.processed_folder, self.test_multi_file))
 
     def download(self):
         from six.moves import urllib
@@ -116,14 +93,27 @@ class MNIST(data.Dataset):
             read_image_file(os.path.join(self.root, self.raw_folder, 'train-images-idx3-ubyte')),
             read_label_file(os.path.join(self.root, self.raw_folder, 'train-labels-idx1-ubyte'))
         )
-        test_set = (
+        test_single_set = (
             read_image_file(os.path.join(self.root, self.raw_folder, 't10k-images-idx3-ubyte')),
             read_label_file(os.path.join(self.root, self.raw_folder, 't10k-labels-idx1-ubyte'))
         )
         with open(os.path.join(self.root, self.processed_folder, self.training_file), 'wb') as f:
             torch.save(training_set, f)
-        with open(os.path.join(self.root, self.processed_folder, self.test_file), 'wb') as f:
-            torch.save(test_set, f)
+        with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
+            torch.save(test_single_set, f)
+
+        # generate multi dataset
+        x_test, y_test = test_single_set[0].numpy(), test_single_set[1].numpy()
+        idx = list(range(len(x_test)))
+        np.random.shuffle(idx)
+        x_test, y_test = np.concatenate([x_test, x_test[idx]], 2), np.vstack([y_test, y_test[idx]]).T
+        # make sure the two number is different
+        x_test, y_test = x_test[y_test[:, 0] != y_test[:, 1]], y_test[y_test[:, 0] != y_test[:, 1]]
+        # just compare the labels, don't compare the order
+        y_test.sort(axis=1)
+        test_multi_set = (torch.from_numpy(x_test), torch.from_numpy(y_test))
+        with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
+            torch.save(test_multi_set, f)
 
 
 class FashionMNIST(MNIST):
