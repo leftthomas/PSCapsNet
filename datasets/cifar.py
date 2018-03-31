@@ -53,10 +53,11 @@ class CIFAR10(MNIST):
             print('Downloading ' + url)
             filename = url.split('/')[-1]
             urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
-            # extract file
-            tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), "r:gz")
-            tar.extractall(os.path.join(self.root, self.raw_folder))
-            tar.close()
+            if filename.endswith('.gz'):
+                # extract file
+                tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), "r:gz")
+                tar.extractall(os.path.join(self.root, self.raw_folder))
+                tar.close()
 
         train_data, train_labels = self.__loadfile(self.train_list)
         test_data, test_labels = self.__loadfile(self.test_list)
