@@ -130,7 +130,11 @@ if __name__ == '__main__':
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'],
                         help='dataset type')
     parser.add_argument('--net_mode', default='Capsule', type=str, choices=['Capsule', 'CNN'], help='network mode')
-    parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
+    parser.add_argument('--routing_type', default='k_means', type=str, choices=['k_means', 'dynamic'],
+                        help='routing type')
+    parser.add_argument('--cum', default=None, type=str, choices=['yes', 'no'],
+                        help='accumulate similarity or not, it only works for dynamic routing')
+    parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number, it not work for CNN')
     parser.add_argument('--batch_size', default=50, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=100, type=int, help='train epochs number')
 
@@ -138,6 +142,8 @@ if __name__ == '__main__':
 
     DATA_TYPE = opt.data_type
     NET_MODE = opt.net_mode
+    ROUTING_TYPE = opt.routing_type
+    CUM = opt.cum
     NUM_ITERATIONS = opt.num_iterations
     BATCH_SIZE = opt.batch_size
     NUM_EPOCHS = opt.num_epochs
@@ -150,7 +156,12 @@ if __name__ == '__main__':
     if DATA_TYPE == 'CIFAR100':
         CLASSES = 100
 
-    model = models[DATA_TYPE](NUM_ITERATIONS, NET_MODE)
+    if (CUM is not None) and ROUTING_TYPE == 'dynamic':
+        model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS, cum=True if CUM == 'yes' else False)
+    elif (CUM is None) and ROUTING_TYPE == 'k_means':
+        model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS, similarity='cosine')
+    else:
+        raise ValueError('cum is not set when routing_type=dynamic, or cum is set when routing_type=k_means.')
     loss_criterion = MarginLoss()
     if torch.cuda.is_available():
         model.cuda()
