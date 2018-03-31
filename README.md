@@ -27,7 +27,6 @@ optional arguments:
 --data_type                   dataset type [default value is 'MNIST'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'])
 --net_mode                    network mode [default value is 'Capsule'](choices:['Capsule', 'CNN'])
 --routing_type                routing type [default value is 'k_means'](choices:['k_means', 'dynamic'])
---cum                         accumulate similarity, it only work for dynamic routing [default value is False]
 --num_iterations              routing iterations number [default value is 3]
 --batch_size                  train batch size [default value is 50]
 --num_epochs                  train epochs number [default value is 100]

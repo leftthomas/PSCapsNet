@@ -5,7 +5,7 @@ from torch import nn
 
 
 class CIFAR10Net(nn.Module):
-    def __init__(self, net_mode='Capsule', routing_type='k_means', num_iterations=3, **kwargs):
+    def __init__(self, net_mode='Capsule', routing_type='k_means', num_iterations=3):
         super(CIFAR10Net, self).__init__()
 
         self.net_mode = net_mode
@@ -16,7 +16,7 @@ class CIFAR10Net(nn.Module):
                                       nn.Conv2d(128, 128, kernel_size=3, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
             self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=4, routing_type=routing_type,
-                                            num_iterations=num_iterations, squash=False, **kwargs)
+                                            num_iterations=num_iterations, squash=False)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
             self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=128), nn.ReLU(),
