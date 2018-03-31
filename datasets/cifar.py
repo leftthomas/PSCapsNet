@@ -16,13 +16,11 @@ from PIL import Image
 
 
 class CIFAR10(MNIST):
-    url = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
+    urls = ['https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz']
 
     train_list = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5']
 
     test_list = ['test_batch']
-
-    filename = "cifar-10-python.tar.gz"
 
     base_folder = 'cifar-10-batches-py'
 
@@ -42,7 +40,6 @@ class CIFAR10(MNIST):
         if self._check_exists():
             return
 
-        # download files
         try:
             os.makedirs(os.path.join(self.root, self.raw_folder))
             os.makedirs(os.path.join(self.root, self.processed_folder))
@@ -51,13 +48,15 @@ class CIFAR10(MNIST):
                 pass
             else:
                 raise
-
-        print('Downloading ' + self.url)
-        urllib.request.urlretrieve(self.url, os.path.join(self.root, self.raw_folder, self.filename))
-        # extract file
-        tar = tarfile.open(os.path.join(self.root, self.raw_folder, self.filename), "r:gz")
-        tar.extractall(os.path.join(self.root, self.raw_folder))
-        tar.close()
+        # download files
+        for url in self.urls:
+            print('Downloading ' + url)
+            filename = url.split('/')[-1]
+            urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
+            # extract file
+            tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), "r:gz")
+            tar.extractall(os.path.join(self.root, self.raw_folder))
+            tar.close()
 
         train_data, train_labels = self.__loadfile(self.train_list)
         test_data, test_labels = self.__loadfile(self.test_list)
@@ -109,12 +108,10 @@ class CIFAR10(MNIST):
 
 
 class CIFAR100(CIFAR10):
-    url = 'https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz'
+    urls = ['https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz']
 
     train_list = ['train']
 
     test_list = ['test']
-
-    filename = "cifar-100-python.tar.gz"
 
     base_folder = 'cifar-100-python'

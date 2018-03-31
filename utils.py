@@ -131,4 +131,4 @@ class MultiClassAccuracyMeter(Meter):
 
 
 if __name__ == '__main__':
-    CIFAR100(root='data/CIFAR100', mode='test_multi', download=True)
+    STL10(root='data/STL10', mode='test_multi', download=True)

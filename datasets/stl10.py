@@ -23,14 +23,12 @@ class STL10(CIFAR10):
     base_folder = 'stl10_binary'
 
     def __loadfile(self, data_file):
-        labels = None
-        if labels_file:
-            path_to_labels = os.path.join(
-                self.root, self.base_folder, labels_file)
-            with open(path_to_labels, 'rb') as f:
-                labels = np.fromfile(f, dtype=np.uint8) - 1  # 0-based
+        path_to_labels = os.path.join(self.root, self.base_folder, data_file[1])
+        with open(path_to_labels, 'rb') as f:
+            # 0-based
+            labels = np.fromfile(f, dtype=np.uint8) - 1
 
-        path_to_data = os.path.join(self.root, self.base_folder, data_file)
+        path_to_data = os.path.join(self.root, self.base_folder, data_file[0])
         with open(path_to_data, 'rb') as f:
             # read whole file in uint8 chunks
             everything = np.fromfile(f, dtype=np.uint8)
@@ -38,5 +36,4 @@ class STL10(CIFAR10):
             images = np.transpose(images, (0, 1, 3, 2))
         # convert to HWC
         images = images.transpose((0, 2, 3, 1))
-        labels = np.asarray(labels)
         return images, labels
