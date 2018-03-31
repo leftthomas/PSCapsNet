@@ -21,6 +21,8 @@ class MNIST(data.Dataset):
     training_file = 'training.pt'
     test_single_file = 'test_single.pt'
     test_multi_file = 'test_multi.pt'
+    train_list = ['train-images-idx3-ubyte', 'train-labels-idx1-ubyte']
+    test_list = ['t10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte']
 
     def __init__(self, root, mode='train', transform=None, download=False):
         self.root = os.path.expanduser(root)
@@ -63,12 +65,11 @@ class MNIST(data.Dataset):
 
     def download(self):
         from six.moves import urllib
-        import gzip
+        import tarfile
 
         if self._check_exists():
             return
 
-        # download files
         try:
             os.makedirs(os.path.join(self.root, self.raw_folder))
             os.makedirs(os.path.join(self.root, self.processed_folder))
@@ -77,35 +78,30 @@ class MNIST(data.Dataset):
                 pass
             else:
                 raise
-
+        # download files
         for url in self.urls:
             print('Downloading ' + url)
-            data = urllib.request.urlopen(url)
-            filename = url.rpartition('/')[2]
-            file_path = os.path.join(self.root, self.raw_folder, filename)
-            with open(file_path, 'wb') as f:
-                f.write(data.read())
-            with open(file_path.replace('.gz', ''), 'wb') as out_f, \
-                    gzip.GzipFile(file_path) as zip_f:
-                out_f.write(zip_f.read())
-            os.unlink(file_path)
+            filename = url.split('/')[-1]
+            urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
+            if filename.endswith('.gz'):
+                # extract file
+                tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), "r:gz")
+                tar.extractall(os.path.join(self.root, self.raw_folder))
+                tar.close()
+
+        train_data, train_labels = self.__loadfile(self.train_list)
+        test_data, test_labels = self.__loadfile(self.test_list)
 
         # process and save as torch files
-        training_set = (
-            read_image_file(os.path.join(self.root, self.raw_folder, 'train-images-idx3-ubyte')),
-            read_label_file(os.path.join(self.root, self.raw_folder, 'train-labels-idx1-ubyte'))
-        )
-        test_single_set = (
-            read_image_file(os.path.join(self.root, self.raw_folder, 't10k-images-idx3-ubyte')),
-            read_label_file(os.path.join(self.root, self.raw_folder, 't10k-labels-idx1-ubyte'))
-        )
+        training_set = (torch.from_numpy(train_data), torch.from_numpy(train_labels))
         with open(os.path.join(self.root, self.processed_folder, self.training_file), 'wb') as f:
             torch.save(training_set, f)
+        test_single_set = (torch.from_numpy(test_data), torch.from_numpy(test_labels))
         with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
             torch.save(test_single_set, f)
 
         # generate multi dataset
-        x_test, y_test = test_single_set[0].numpy(), test_single_set[1].numpy()
+        x_test, y_test = test_data, test_labels
         idx = list(range(len(x_test)))
         np.random.shuffle(idx)
         x_test, y_test = np.concatenate([x_test, x_test[idx]], 2), np.vstack([y_test, y_test[idx]]).T
@@ -116,6 +112,11 @@ class MNIST(data.Dataset):
         test_multi_set = (torch.from_numpy(x_test), torch.from_numpy(y_test))
         with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
             torch.save(test_multi_set, f)
+
+    def __loadfile(self, data_file):
+        data = read_image_file(os.path.join(self.root, self.raw_folder, data_file[0], data_file[0])).numpy()
+        labels = read_label_file(os.path.join(self.root, self.raw_folder, data_file[1], data_file[0])).numpy()
+        return data, labels
 
 
 class FashionMNIST(MNIST):

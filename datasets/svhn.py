@@ -3,10 +3,10 @@ import os.path
 
 import numpy as np
 
-from .cifar import CIFAR10
+from .mnist import MNIST
 
 
-class SVHN(CIFAR10):
+class SVHN(MNIST):
     urls = [
         'http://ufldl.stanford.edu/housenumbers/train_32x32.mat',
         'http://ufldl.stanford.edu/housenumbers/test_32x32.mat',
@@ -15,8 +15,6 @@ class SVHN(CIFAR10):
     train_list = ['train_32x32.mat']
 
     test_list = ['test_32x32.mat']
-
-    base_folder = ''
 
     def __loadfile(self, data_file):
         import scipy.io as sio
