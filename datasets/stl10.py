@@ -12,13 +12,11 @@ from .cifar import CIFAR10
 
 
 class STL10(CIFAR10):
-    url = "http://ai.stanford.edu/~acoates/stl10/stl10_binary.tar.gz"
+    urls = ['http://ai.stanford.edu/~acoates/stl10/stl10_binary.tar.gz']
 
     train_list = ['train_X.bin', 'train_y.bin']
 
     test_list = ['test_X.bin', 'test_y.bin']
-
-    filename = "stl10_binary.tar.gz"
 
     base_folder = 'stl10_binary'
 
