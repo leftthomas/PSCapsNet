@@ -14,12 +14,12 @@ class MNISTNet(nn.Module):
                                       nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.ReLU(),
                                       nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=16, out_length=32, routing_type='k_means',
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=64, out_length=32, routing_type='k_means',
                                             num_iterations=num_iterations, similarity='cosine', squash=False)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=64, out_features=64), nn.ReLU(),
-                                            nn.Linear(in_features=64, out_features=10))
+            self.classifier = nn.Sequential(nn.Linear(in_features=64, out_features=32), nn.ReLU(),
+                                            nn.Linear(in_features=32, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
@@ -27,7 +27,7 @@ class MNISTNet(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 16)
+            out = out.contiguous().view(out.size(0), -1, 64)
             out = self.classifier(out)
             out = flaser(out, dim=-1)
             classes = out.norm(dim=-1)
