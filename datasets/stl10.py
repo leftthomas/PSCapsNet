@@ -1,84 +1,76 @@
 import os
 import os.path
+import sys
 
+if sys.version_info[0] == 2:
+    import cPickle as pickle
+else:
+    import pickle
+import errno
+import torch
 import numpy as np
-from PIL import Image
 
 from .cifar import CIFAR10
 
 
 class STL10(CIFAR10):
-    raw_folder = 'stl10_binary'
     url = "http://ai.stanford.edu/~acoates/stl10/stl10_binary.tar.gz"
+
+    train_list = ['train_X.bin', 'train_y.bin']
+
+    test_list = ['test_X.bin', 'test_y.bin']
+
     filename = "stl10_binary.tar.gz"
-    tgz_md5 = '91f7769df0f17e558f3565bffb0c7dfb'
-    class_names_file = 'class_names.txt'
-    train_list = [
-        ['train_X.bin', '918c2871b30a85fa023e0c44e0bee87f'],
-        ['train_y.bin', '5a34089d4802c674881badbb80307741'],
-        ['unlabeled_X.bin', '5242ba1fed5e4be9e1e742405eb56ca4']
-    ]
 
-    test_list = [
-        ['test_X.bin', '7f263ba9f9e0b06b93213547f721ac82'],
-        ['test_y.bin', '36f9794fa4beb8a2c72628de14fa638e']
-    ]
+    base_folder = 'stl10_binary'
 
-    def __init__(self, root, mode='train', transform=None, target_transform=None, download=False):
-        self.root = os.path.expanduser(root)
-        self.transform = transform
-        self.target_transform = target_transform
-        self.mode = mode
+    def download(self):
+        from six.moves import urllib
+        import tarfile
 
-        if download:
-            self.download()
+        if self._check_exists():
+            return
 
-        if not self._check_integrity():
-            raise RuntimeError('Dataset not found or corrupted. ' + 'You can use download=True to download it')
+        # download files
+        try:
+            os.makedirs(os.path.join(self.root, self.raw_folder))
+            os.makedirs(os.path.join(self.root, self.processed_folder))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+            else:
+                raise
 
-        # now load the picked numpy arrays
-        if self.mode == 'train':
-            self.data, self.labels = self.__loadfile(self.train_list[0][0], self.train_list[1][0])
-        elif self.mode == 'test_single':
-            self.data, self.labels = self.__loadfile(self.test_list[0][0], self.test_list[1][0])
-        else:
-            # test_multi
-            self.data, self.labels = self.__loadfile(self.test_list[0][0], self.test_list[1][0])
+        print('Downloading ' + self.url)
+        urllib.request.urlretrieve(self.url, os.path.join(self.root, self.raw_folder, self.filename))
+        # extract file
+        tar = tarfile.open(os.path.join(self.root, self.raw_folder, self.filename), "r:gz")
+        tar.extractall(os.path.join(self.root, self.raw_folder))
+        tar.close()
 
-            x_test, y_test = self.data, self.labels
-            idx = list(range(len(x_test)))
-            np.random.shuffle(idx)
-            X_test = np.concatenate([x_test, x_test[idx]], 3)
-            Y_test = np.vstack([y_test, y_test[idx]]).T
-            # make sure the two number is different
-            X_test = X_test[Y_test[:, 0] != Y_test[:, 1]]
-            Y_test = Y_test[Y_test[:, 0] != Y_test[:, 1]]
-            # just compare the labels, don't compare the order
-            Y_test.sort(axis=1)
-            self.data, self.labels = X_test, Y_test
+        train_data, train_labels = self.__loadfile(self.train_list[0], self.train_list[1])
+        test_data, test_labels = self.__loadfile(self.test_list[0], self.test_list[1])
 
-        class_file = os.path.join(self.root, self.base_folder, self.class_names_file)
-        if os.path.isfile(class_file):
-            with open(class_file) as f:
-                self.classes = f.read().splitlines()
+        # process and save as torch files
+        training_set = (torch.from_numpy(train_data), torch.from_numpy(train_labels))
+        with open(os.path.join(self.root, self.processed_folder, self.training_file), 'wb') as f:
+            torch.save(training_set, f)
+        test_single_set = (torch.from_numpy(test_data), torch.from_numpy(test_labels))
+        with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
+            torch.save(test_single_set, f)
 
-    def __getitem__(self, index):
-        if self.mode != 'test_multi':
-            img, target = self.data[index], int(self.labels[index])
-        else:
-            img, target = self.data[index], self.labels[index]
-        img = Image.fromarray(np.transpose(img, (1, 2, 0)))
-
-        if self.transform is not None:
-            img = self.transform(img)
-
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-
-        return img, target
-
-    def __len__(self):
-        return self.data.shape[0]
+        # generate multi dataset
+        x_test, y_test = test_data, test_labels
+        idx = list(range(len(x_test)))
+        np.random.shuffle(idx)
+        x_test, y_test = np.concatenate([x_test, x_test[idx]], 2), np.vstack([y_test, y_test[idx]]).T
+        # make sure the two number is different
+        x_test, y_test = x_test[y_test[:, 0] != y_test[:, 1]], y_test[y_test[:, 0] != y_test[:, 1]]
+        # just compare the labels, don't compare the order
+        y_test.sort(axis=1)
+        test_multi_set = (torch.from_numpy(x_test), torch.from_numpy(y_test))
+        with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
+            torch.save(test_multi_set, f)
 
     def __loadfile(self, data_file, labels_file=None):
         labels = None
@@ -94,5 +86,7 @@ class STL10(CIFAR10):
             everything = np.fromfile(f, dtype=np.uint8)
             images = np.reshape(everything, (-1, 3, 96, 96))
             images = np.transpose(images, (0, 1, 3, 2))
-
+        # convert to HWC
+        images = images.transpose((0, 2, 3, 1))
+        labels = np.asarray(labels)
         return images, labels
