@@ -101,7 +101,7 @@ class GradCam:
 
 def get_iterator(data_type, mode, batch_size=50):
     data = data_set[data_type](root='data/' + data_type, mode=mode, transform=transforms.ToTensor(), download=True)
-    return DataLoader(dataset=data, batch_size=batch_size, shuffle=mode, num_workers=4)
+    return DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4)
 
 
 class MultiClassAccuracyMeter(Meter):

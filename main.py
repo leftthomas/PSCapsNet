@@ -93,11 +93,19 @@ def on_end_epoch(state):
         state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
     # features visualization
+    test_single_image, test_single_labels = next(iter(get_iterator(DATA_TYPE, 'test_single', 8)))
+    single_image_logger.log(make_grid(test_single_image, nrow=2, normalize=True, padding=4, pad_value=128).numpy())
+    if torch.cuda.is_available():
+        test_single_image = test_single_image.cuda()
+    single_feature_image = grad_cam(test_single_image)
+    single_feature_logger.log(make_grid(single_feature_image, nrow=2, normalize=True).numpy())
+
     test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
+    multi_image_logger.log(make_grid(test_multi_image, nrow=2, normalize=True, padding=4, pad_value=128).numpy())
     if torch.cuda.is_available():
         test_multi_image = test_multi_image.cuda()
-    feature_image = grad_cam(test_multi_image)
-    multi_feature_image_logger.log(make_grid(feature_image, nrow=2, normalize=True).numpy())
+    multi_feature_image = grad_cam(test_multi_image)
+    multi_feature_logger.log(make_grid(multi_feature_image, nrow=2, normalize=True).numpy())
 
     # save model
     torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))
@@ -166,10 +174,16 @@ if __name__ == '__main__':
     test_multi_confidence_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE,
                                                              opts={'title': 'Test Multi Confidence Accuracy'})
     confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
-                                    opts={'title': 'Confusion Matrix', 'columnnames': class_name,
+                                    opts={'title': 'Test Confusion Matrix', 'columnnames': class_name,
                                           'rownames': class_name})
-    multi_feature_image_logger = VisdomLogger('image', env=DATA_TYPE,
-                                              opts={'title': 'Multi Feature Image', 'width': 371, 'height': 335})
+    single_image_logger = VisdomLogger('image', env=DATA_TYPE,
+                                       opts={'title': 'Single Image', 'width': 371, 'height': 335})
+    single_feature_logger = VisdomLogger('image', env=DATA_TYPE,
+                                         opts={'title': 'Single Feature', 'width': 371, 'height': 335})
+    multi_image_logger = VisdomLogger('image', env=DATA_TYPE,
+                                      opts={'title': 'Multi Image', 'width': 371, 'height': 335})
+    multi_feature_logger = VisdomLogger('image', env=DATA_TYPE,
+                                        opts={'title': 'Multi Feature', 'width': 371, 'height': 335})
 
     engine.hooks['on_sample'] = on_sample
     engine.hooks['on_forward'] = on_forward
