@@ -65,7 +65,6 @@ class MNIST(data.Dataset):
 
     def download(self):
         from six.moves import urllib
-        import tarfile
 
         if self._check_exists():
             return
@@ -83,11 +82,18 @@ class MNIST(data.Dataset):
             print('Downloading ' + url)
             filename = url.split('/')[-1]
             urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
-            if filename.endswith('.gz'):
+            if filename.endswith('.tar.gz'):
+                import tarfile
                 # extract file
-                tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), "r:gz")
+                tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), 'r:gz')
                 tar.extractall(os.path.join(self.root, self.raw_folder))
                 tar.close()
+            elif filename.endswith('.gz'):
+                import gzip
+                file_name = os.path.join(self.root, self.raw_folder, filename).replace('.gz', '')
+                g_file = gzip.GzipFile(os.path.join(self.root, self.raw_folder, filename))
+                open(file_name, 'w+').write(g_file.read())
+                g_file.close()
 
         train_data, train_labels = self.__loadfile(self.train_list)
         test_data, test_labels = self.__loadfile(self.test_list)
@@ -114,8 +120,8 @@ class MNIST(data.Dataset):
             torch.save(test_multi_set, f)
 
     def __loadfile(self, data_file):
-        data = read_image_file(os.path.join(self.root, self.raw_folder, data_file[0], data_file[0])).numpy()
-        labels = read_label_file(os.path.join(self.root, self.raw_folder, data_file[1], data_file[0])).numpy()
+        data = read_image_file(os.path.join(self.root, self.raw_folder, data_file[0])).numpy()
+        labels = read_label_file(os.path.join(self.root, self.raw_folder, data_file[1])).numpy()
         return data, labels
 
 

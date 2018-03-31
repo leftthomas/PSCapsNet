@@ -131,4 +131,4 @@ class MultiClassAccuracyMeter(Meter):
 
 
 if __name__ == '__main__':
-    MNIST(root='data/MNIST', mode='test_multi', download=True)
+    MNIST(root='data/MNIST', mode='train', download=True)
