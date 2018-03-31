@@ -81,19 +81,23 @@ class MNIST(data.Dataset):
         for url in self.urls:
             print('Downloading ' + url)
             filename = url.split('/')[-1]
-            urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
             if filename.endswith('.tar.gz'):
                 import tarfile
+                urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
                 # extract file
                 tar = tarfile.open(os.path.join(self.root, self.raw_folder, filename), 'r:gz')
                 tar.extractall(os.path.join(self.root, self.raw_folder))
                 tar.close()
             elif filename.endswith('.gz'):
                 import gzip
-                file_name = os.path.join(self.root, self.raw_folder, filename).replace('.gz', '')
-                g_file = gzip.GzipFile(os.path.join(self.root, self.raw_folder, filename))
-                open(file_name, 'w+').write(g_file.read())
-                g_file.close()
+                data = urllib.request.urlopen(url)
+                file_path = os.path.join(self.root, self.raw_folder, filename)
+                with open(file_path, 'wb') as f:
+                    f.write(data.read())
+                with open(file_path.replace('.gz', ''), 'wb') as out_f, \
+                        gzip.GzipFile(file_path) as zip_f:
+                    out_f.write(zip_f.read())
+                os.unlink(file_path)
 
         train_data, train_labels = self.__loadfile(self.train_list)
         test_data, test_labels = self.__loadfile(self.test_list)
