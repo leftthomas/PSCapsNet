@@ -68,6 +68,7 @@ def on_end_epoch(state):
 
     train_loss_logger.log(state['epoch'], meter_loss.value()[0])
     train_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
+    train_confusion_logger.log(meter_confusion.value())
     results['train_loss'].append(meter_loss.value()[0])
     results['train_accuracy'].append(meter_accuracy.value()[0])
 
@@ -76,7 +77,7 @@ def on_end_epoch(state):
     engine.test(processor, get_iterator(DATA_TYPE, 'test_single', BATCH_SIZE))
     test_single_loss_logger.log(state['epoch'], meter_loss.value()[0])
     test_single_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
-    confusion_logger.log(meter_confusion.value())
+    test_confusion_logger.log(meter_confusion.value())
     results['test_single_loss'].append(meter_loss.value()[0])
     results['test_single_accuracy'].append(meter_accuracy.value()[0])
     print('[Epoch %d] Testing Single Loss: %.4f Testing Single Accuracy: %.2f%%' % (
@@ -173,9 +174,12 @@ if __name__ == '__main__':
     test_multi_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE, opts={'title': 'Test Multi Accuracy'})
     test_multi_confidence_accuracy_logger = VisdomPlotLogger('line', env=DATA_TYPE,
                                                              opts={'title': 'Test Multi Confidence Accuracy'})
-    confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
-                                    opts={'title': 'Test Confusion Matrix', 'columnnames': class_name,
-                                          'rownames': class_name})
+    train_confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
+                                          opts={'title': 'Train Confusion Matrix', 'columnnames': class_name,
+                                                'rownames': class_name})
+    test_confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
+                                         opts={'title': 'Test Confusion Matrix', 'columnnames': class_name,
+                                               'rownames': class_name})
     single_image_logger = VisdomLogger('image', env=DATA_TYPE,
                                        opts={'title': 'Single Image', 'width': 371, 'height': 335})
     single_feature_logger = VisdomLogger('image', env=DATA_TYPE,
