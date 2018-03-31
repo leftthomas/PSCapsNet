@@ -30,7 +30,7 @@ class MNIST(data.Dataset):
         self.transform = transform
 
         if download:
-            self.download()
+            self.__download()
 
         if not self._check_exists():
             raise RuntimeError('dataset not found, you can use download=True to download it')
@@ -63,7 +63,7 @@ class MNIST(data.Dataset):
             os.path.join(self.root, self.processed_folder, self.test_single_file)) and os.path.exists(
             os.path.join(self.root, self.processed_folder, self.test_multi_file))
 
-    def download(self):
+    def __download(self):
         from six.moves import urllib
 
         if self._check_exists():
@@ -99,8 +99,8 @@ class MNIST(data.Dataset):
                     out_f.write(zip_f.read())
                 os.unlink(file_path)
 
-        train_data, train_labels = self.__loadfile(self.train_list)
-        test_data, test_labels = self.__loadfile(self.test_list)
+        train_data, train_labels = self.loadfile(self.train_list)
+        test_data, test_labels = self.loadfile(self.test_list)
 
         # process and save as torch files
         training_set = (torch.from_numpy(train_data), torch.from_numpy(train_labels))
@@ -123,7 +123,7 @@ class MNIST(data.Dataset):
         with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
             torch.save(test_multi_set, f)
 
-    def __loadfile(self, data_file):
+    def loadfile(self, data_file):
         data = read_image_file(os.path.join(self.root, self.raw_folder, data_file[0])).numpy()
         labels = read_label_file(os.path.join(self.root, self.raw_folder, data_file[1])).numpy()
         return data, labels

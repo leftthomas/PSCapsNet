@@ -20,7 +20,7 @@ class STL10(CIFAR10):
 
     base_folder = 'stl10_binary'
 
-    def __loadfile(self, data_file):
+    def loadfile(self, data_file):
         path_to_labels = os.path.join(self.root, self.raw_folder, self.base_folder, data_file[1])
         with open(path_to_labels, 'rb') as f:
             # 0-based

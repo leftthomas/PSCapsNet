@@ -131,4 +131,4 @@ class MultiClassAccuracyMeter(Meter):
 
 
 if __name__ == '__main__':
-    MNIST(root='data/MNIST', mode='train', download=True)
+    CIFAR10(root='data/CIFAR10', mode='train', download=True)

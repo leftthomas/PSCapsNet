@@ -21,7 +21,7 @@ class CIFAR10(MNIST):
 
     base_folder = 'cifar-10-batches-py'
 
-    def __loadfile(self, data_file):
+    def loadfile(self, data_file):
         data = []
         labels = []
         for f in data_file:

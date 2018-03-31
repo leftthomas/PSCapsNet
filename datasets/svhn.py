@@ -16,7 +16,7 @@ class SVHN(MNIST):
 
     test_list = ['test_32x32.mat']
 
-    def __loadfile(self, data_file):
+    def loadfile(self, data_file):
         import scipy.io as sio
 
         loaded_mat = sio.loadmat(os.path.join(self.root, self.raw_folder, data_file[0]))
