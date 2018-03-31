@@ -44,8 +44,6 @@ class MNIST(data.Dataset):
         else:
             raise RuntimeError('mode parameter must between train, test_single and test_multi')
 
-        print('a')
-
     def __getitem__(self, index):
         img, target = self.data[index], self.labels[index]
         img = Image.fromarray(img.numpy())

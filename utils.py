@@ -99,7 +99,7 @@ class GradCam:
         return heat_maps
 
 
-def get_iterator(data_type, mode, batch_size=100):
+def get_iterator(data_type, mode, batch_size=50):
     data = data_set[data_type](root='data/' + data_type, mode=mode, transform=transforms.ToTensor(), download=True)
     return DataLoader(dataset=data, batch_size=batch_size, shuffle=mode, num_workers=4)
 
@@ -129,6 +129,3 @@ class MultiClassAccuracyMeter(Meter):
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0
 
-
-if __name__ == '__main__':
-    SVHN(root='data/SVHN', mode='train', download=True)
