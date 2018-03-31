@@ -41,9 +41,9 @@ class MarginLoss(nn.Module):
         super(MarginLoss, self).__init__()
 
     def forward(self, classes, labels):
-        left = F.relu(0.9 - classes, inplace=True) ** 2
-        right = F.relu(classes - 0.1, inplace=True) ** 2
-        loss = labels * left + 0.25 * (1 - labels) * right
+        left = F.relu(0.95 - classes, inplace=True) ** 2
+        right = F.relu(classes - 0.05, inplace=True) ** 2
+        loss = labels * left + (2 / (classes.size(-1) - 1)) * (1 - labels) * right
         return loss.mean()
 
 
@@ -128,4 +128,3 @@ class MultiClassAccuracyMeter(Meter):
 
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0
-
