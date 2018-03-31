@@ -9,13 +9,13 @@ class MNISTNet(nn.Module):
         super(MNISTNet, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1), nn.BatchNorm2d(32), nn.ReLU())
-        self.features = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1), nn.BatchNorm2d(32), nn.ReLU(),
+        self.conv1 = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1), nn.ReLU())
+        self.features = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1), nn.ReLU(),
                                       nn.AvgPool2d(kernel_size=2),
-                                      nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),
-                                      nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU())
+                                      nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.ReLU(),
+                                      nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=64, out_length=16, routing_type='k_means',
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type='k_means',
                                             num_iterations=num_iterations, similarity='cosine', squash=False)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
@@ -28,7 +28,7 @@ class MNISTNet(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 64)
+            out = out.contiguous().view(out.size(0), -1, 8)
             out = self.classifier(out)
             out = flaser(out, dim=-1)
             classes = out.norm(dim=-1)
