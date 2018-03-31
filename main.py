@@ -159,7 +159,7 @@ if __name__ == '__main__':
     if ROUTING_TYPE == 'dynamic':
         model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS, cum=CUM)
     else:
-        model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS, similarity='cosine')
+        model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS)
     loss_criterion = MarginLoss()
     if torch.cuda.is_available():
         model.cuda()
