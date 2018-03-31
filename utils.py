@@ -80,12 +80,26 @@ class GradCam:
             else:
                 # don't apply sigmoid, just got the score
                 classes = feature
-            one_hot, _ = classes.max(dim=-1)
-            self.model.zero_grad()
-            one_hot.backward()
 
-            weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
-            mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
+            # this is test_multi, we save top2 GradCAM
+            if image_size[0] != image_size[1]:
+                one_hots, _ = classes.topk(k=2, dim=-1)
+                masks = []
+                for i in range(2):
+                    one_hot = one_hots[:, i]
+                    self.model.zero_grad()
+                    one_hot.backward()
+                    weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
+                    mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
+                    masks.append(mask)
+                mask = masks[0] + masks[1]
+            else:
+                one_hot, _ = classes.max(dim=-1)
+                self.model.zero_grad()
+                one_hot.backward()
+                weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
+                mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
+
             mask = cv2.resize(mask.data.cpu().numpy(), image_size)
             mask = mask - np.min(mask)
             if np.max(mask) != 0:
