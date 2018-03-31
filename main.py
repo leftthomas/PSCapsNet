@@ -93,19 +93,19 @@ def on_end_epoch(state):
         state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
     # features visualization
-    test_single_image, test_single_labels = next(iter(get_iterator(DATA_TYPE, 'test_single', 8)))
-    single_image_logger.log(make_grid(test_single_image, nrow=2, normalize=True, padding=4, pad_value=128).numpy())
+    test_single_image, test_single_labels = next(iter(get_iterator(DATA_TYPE, 'test_single', 16)))
+    single_image_logger.log(make_grid(test_single_image, nrow=4, normalize=True, padding=4, pad_value=128).numpy())
     if torch.cuda.is_available():
         test_single_image = test_single_image.cuda()
     single_feature_image = grad_cam(test_single_image)
-    single_feature_logger.log(make_grid(single_feature_image, nrow=2, normalize=True).numpy())
+    single_feature_logger.log(make_grid(single_feature_image, nrow=4, normalize=True, padding=4, pad_value=128).numpy())
 
     test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
     multi_image_logger.log(make_grid(test_multi_image, nrow=2, normalize=True, padding=4, pad_value=128).numpy())
     if torch.cuda.is_available():
         test_multi_image = test_multi_image.cuda()
     multi_feature_image = grad_cam(test_multi_image)
-    multi_feature_logger.log(make_grid(multi_feature_image, nrow=2, normalize=True).numpy())
+    multi_feature_logger.log(make_grid(multi_feature_image, nrow=2, normalize=True, padding=4, pad_value=128).numpy())
 
     # save model
     torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))
