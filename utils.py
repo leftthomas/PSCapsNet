@@ -88,7 +88,7 @@ class GradCam:
                 for i in range(2):
                     one_hot = one_hots[:, i]
                     self.model.zero_grad()
-                    one_hot.backward()
+                    one_hot.backward(retain_graph=True)
                     weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
                     mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
                     masks.append(mask)
