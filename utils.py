@@ -78,7 +78,6 @@ class GradCam:
                 classes = feature.norm(dim=-1)
             else:
                 # don't apply sigmoid, just got the score
-                # classes = F.sigmoid(feature)
                 classes = feature
             one_hot, _ = classes.max(dim=-1)
             self.model.zero_grad()
