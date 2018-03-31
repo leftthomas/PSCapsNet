@@ -75,6 +75,7 @@ class GradCam:
                     feature.register_hook(self.save_gradient)
                     self.feature = feature
             if self.model.net_mode == 'Capsule':
+                # don't apply squash, just got the score
                 classes = feature.norm(dim=-1)
             else:
                 # don't apply sigmoid, just got the score
