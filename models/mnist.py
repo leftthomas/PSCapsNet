@@ -10,12 +10,11 @@ class MNISTNet(nn.Module):
 
         self.net_mode = net_mode
         self.conv1 = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1), nn.ReLU())
-        self.features = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1), nn.ReLU(),
-                                      nn.AvgPool2d(kernel_size=2),
+        self.features = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1), nn.ReLU(),
                                       nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.ReLU(),
-                                      nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.ReLU())
+                                      nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=16, out_length=16, routing_type='k_means',
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=16, out_length=32, routing_type='k_means',
                                             num_iterations=num_iterations, similarity='cosine', squash=False)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
