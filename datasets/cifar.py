@@ -3,176 +3,132 @@ import os.path
 import sys
 
 import numpy as np
-from PIL import Image
+
+from .mnist import MNIST
 
 if sys.version_info[0] == 2:
     import cPickle as pickle
 else:
     import pickle
+import errno
+import torch
+from PIL import Image
 
-import torch.utils.data as data
-from .utils import download_url, check_integrity
 
+class CIFAR10(MNIST):
+    url = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
 
-class CIFAR10(data.Dataset):
-    base_folder = 'cifar-10-batches-py'
-    url = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+    train_list = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5']
+
+    test_list = ['test_batch']
+
     filename = "cifar-10-python.tar.gz"
-    tgz_md5 = 'c58f30108f718f92721af3b95e74349a'
-    train_list = [
-        ['data_batch_1', 'c99cafc152244af753f735de768cd75f'],
-        ['data_batch_2', 'd4bba439e000b95fd0a9bffe97cbabec'],
-        ['data_batch_3', '54ebc095f3ab1f0389bbae665268c751'],
-        ['data_batch_4', '634d18415352ddfa80567beed471001a'],
-        ['data_batch_5', '482c414d41f54cd18b22e5b47cb7c3cb'],
-    ]
 
-    test_list = [
-        ['test_batch', '40351d587109b95175f43aff81a1287e'],
-    ]
-
-    def __init__(self, root, mode='train', transform=None, target_transform=None, download=False):
-        self.root = os.path.expanduser(root)
-        self.transform = transform
-        self.target_transform = target_transform
-        self.mode = mode
-
-        if download:
-            self.download()
-
-        if not self._check_integrity():
-            raise RuntimeError('Dataset not found or corrupted.' + ' You can use download=True to download it')
-
-        # now load the picked numpy arrays
-        if self.mode == 'train':
-            self.train_data = []
-            self.train_labels = []
-            for fentry in self.train_list:
-                f = fentry[0]
-                file = os.path.join(self.root, self.base_folder, f)
-                fo = open(file, 'rb')
-                if sys.version_info[0] == 2:
-                    entry = pickle.load(fo)
-                else:
-                    entry = pickle.load(fo, encoding='latin1')
-                self.train_data.append(entry['data'])
-                if 'labels' in entry:
-                    self.train_labels += entry['labels']
-                else:
-                    self.train_labels += entry['fine_labels']
-                fo.close()
-
-            self.train_data = np.concatenate(self.train_data)
-            self.train_data = self.train_data.reshape((50000, 3, 32, 32))
-            self.train_data = self.train_data.transpose((0, 2, 3, 1))  # convert to HWC
-        elif self.mode == 'test_single':
-            f = self.test_list[0][0]
-            file = os.path.join(self.root, self.base_folder, f)
-            fo = open(file, 'rb')
-            if sys.version_info[0] == 2:
-                entry = pickle.load(fo)
-            else:
-                entry = pickle.load(fo, encoding='latin1')
-            self.test_data = entry['data']
-            if 'labels' in entry:
-                self.test_labels = entry['labels']
-            else:
-                self.test_labels = entry['fine_labels']
-            fo.close()
-            self.test_data = self.test_data.reshape((10000, 3, 32, 32))
-            self.test_data = self.test_data.transpose((0, 2, 3, 1))  # convert to HWC
-        else:
-            # test_multi
-            f = self.test_list[0][0]
-            file = os.path.join(self.root, self.base_folder, f)
-            fo = open(file, 'rb')
-            if sys.version_info[0] == 2:
-                entry = pickle.load(fo)
-            else:
-                entry = pickle.load(fo, encoding='latin1')
-            self.test_data = entry['data']
-            if 'labels' in entry:
-                self.test_labels = entry['labels']
-            else:
-                self.test_labels = entry['fine_labels']
-            fo.close()
-            self.test_data = self.test_data.reshape((10000, 3, 32, 32))
-            self.test_data = self.test_data.transpose((0, 2, 3, 1))  # convert to HWC
-
-            x_test, y_test = self.test_data, np.asarray(self.test_labels)
-            idx = list(range(len(x_test)))
-            np.random.shuffle(idx)
-            X_test = np.concatenate([x_test, x_test[idx]], 2)
-            Y_test = np.vstack([y_test, y_test[idx]]).T
-            # make sure the two number is different
-            X_test = X_test[Y_test[:, 0] != Y_test[:, 1]]
-            Y_test = Y_test[Y_test[:, 0] != Y_test[:, 1]]
-            # just compare the labels, don't compare the order
-            Y_test.sort(axis=1)
-            self.test_data, self.test_labels = X_test, Y_test
+    base_folder = 'cifar-10-batches-py'
 
     def __getitem__(self, index):
-        if self.mode == 'train':
-            img, target = self.train_data[index], self.train_labels[index]
-        else:
-            img, target = self.test_data[index], self.test_labels[index]
-
-        img = Image.fromarray(img)
+        img, target = self.data[index], self.labels[index]
+        img = Image.fromarray(img.numpy())
 
         if self.transform is not None:
             img = self.transform(img)
 
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-
         return img, target
 
-    def __len__(self):
-        if self.mode == 'train':
-            return len(self.train_data)
-        else:
-            return len(self.test_data)
-
-    def _check_integrity(self):
-        root = self.root
-        for fentry in (self.train_list + self.test_list):
-            filename, md5 = fentry[0], fentry[1]
-            fpath = os.path.join(root, self.base_folder, filename)
-            if not check_integrity(fpath, md5):
-                return False
-        return True
-
     def download(self):
+        from six.moves import urllib
         import tarfile
 
-        if self._check_integrity():
+        if self._check_exists():
             return
 
-        root = self.root
-        download_url(self.url, root, self.filename, self.tgz_md5)
+        # download files
+        try:
+            os.makedirs(os.path.join(self.root, self.raw_folder))
+            os.makedirs(os.path.join(self.root, self.processed_folder))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+            else:
+                raise
 
+        print('Downloading ' + self.url)
+        urllib.request.urlretrieve(self.url, os.path.join(self.root, self.raw_folder, self.filename))
         # extract file
-        cwd = os.getcwd()
-        tar = tarfile.open(os.path.join(root, self.filename), "r:gz")
-        os.chdir(root)
-        tar.extractall()
+        tar = tarfile.open(os.path.join(self.root, self.raw_folder, self.filename), "r:gz")
+        tar.extractall(os.path.join(self.root, self.raw_folder))
         tar.close()
-        os.chdir(cwd)
+
+        train_data = []
+        train_labels = []
+        for f in self.train_list:
+            file = os.path.join(self.root, self.raw_folder, self.base_folder, f)
+            fo = open(file, 'rb')
+            if sys.version_info[0] == 2:
+                entry = pickle.load(fo)
+            else:
+                entry = pickle.load(fo, encoding='latin1')
+            train_data.append(entry['data'])
+            if 'labels' in entry:
+                train_labels += entry['labels']
+            else:
+                train_labels += entry['fine_labels']
+            fo.close()
+
+        train_data = np.concatenate(train_data)
+        train_data = train_data.reshape((50000, 3, 32, 32))
+        # convert to HWC
+        train_data = train_data.transpose((0, 2, 3, 1))
+        train_labels = np.asarray(train_labels)
+
+        # process and save as torch files
+        training_set = (torch.from_numpy(train_data), torch.from_numpy(train_labels))
+        with open(os.path.join(self.root, self.processed_folder, self.training_file), 'wb') as f:
+            torch.save(training_set, f)
+
+        f = self.test_list[0]
+        file = os.path.join(self.root, self.raw_folder, self.base_folder, f)
+        fo = open(file, 'rb')
+        if sys.version_info[0] == 2:
+            entry = pickle.load(fo)
+        else:
+            entry = pickle.load(fo, encoding='latin1')
+        test_data = entry['data']
+        if 'labels' in entry:
+            test_labels = entry['labels']
+        else:
+            test_labels = entry['fine_labels']
+        fo.close()
+        test_data = test_data.reshape((10000, 3, 32, 32))
+        # convert to HWC
+        test_data = test_data.transpose((0, 2, 3, 1))
+        test_labels = np.asarray(test_labels)
+
+        test_single_set = (torch.from_numpy(test_data), torch.from_numpy(test_labels))
+        with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
+            torch.save(test_single_set, f)
+
+        # generate multi dataset
+        x_test, y_test = test_data, test_labels
+        idx = list(range(len(x_test)))
+        np.random.shuffle(idx)
+        x_test, y_test = np.concatenate([x_test, x_test[idx]], 2), np.vstack([y_test, y_test[idx]]).T
+        # make sure the two number is different
+        x_test, y_test = x_test[y_test[:, 0] != y_test[:, 1]], y_test[y_test[:, 0] != y_test[:, 1]]
+        # just compare the labels, don't compare the order
+        y_test.sort(axis=1)
+        test_multi_set = (torch.from_numpy(x_test), torch.from_numpy(y_test))
+        with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
+            torch.save(test_multi_set, f)
 
 
 class CIFAR100(CIFAR10):
-    base_folder = 'cifar-100-python'
-    url = "https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz"
+    url = 'https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz'
+
+    train_list = ['train']
+
+    test_list = ['test']
+
     filename = "cifar-100-python.tar.gz"
-    tgz_md5 = 'eb9058c3a382ffc7106e4002c42a8d85'
-    train_list = [
-        ['train', '16019d7e3df5f24257cddd939b257f8d'],
-    ]
 
-    test_list = [
-        ['test', 'f0ef6b0ae62326f3e7ffdfab6717acfc'],
-    ]
-
-
-if __name__ == '__main__':
-    CIFAR10(root='data/FashionMNIST', mode='test_multi', download=True)
+    base_folder = 'cifar-100-python'

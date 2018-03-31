@@ -8,7 +8,7 @@ from .cifar import CIFAR10
 
 
 class STL10(CIFAR10):
-    base_folder = 'stl10_binary'
+    raw_folder = 'stl10_binary'
     url = "http://ai.stanford.edu/~acoates/stl10/stl10_binary.tar.gz"
     filename = "stl10_binary.tar.gz"
     tgz_md5 = '91f7769df0f17e558f3565bffb0c7dfb'

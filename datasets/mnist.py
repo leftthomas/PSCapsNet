@@ -14,7 +14,7 @@ class MNIST(data.Dataset):
         'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz',
         'http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz',
         'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz',
-        'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz',
+        'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz'
     ]
     raw_folder = 'raw'
     processed_folder = 'processed'
@@ -41,6 +41,8 @@ class MNIST(data.Dataset):
             self.data, self.labels = torch.load(os.path.join(self.root, self.processed_folder, self.test_multi_file))
         else:
             raise RuntimeError('mode parameter must between train, test_single and test_multi')
+
+        print('a')
 
     def __getitem__(self, index):
         img, target = self.data[index], self.labels[index]
@@ -121,7 +123,7 @@ class FashionMNIST(MNIST):
         'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz',
         'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
         'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz',
-        'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz',
+        'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz'
     ]
 
 

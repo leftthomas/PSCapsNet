@@ -128,3 +128,7 @@ class MultiClassAccuracyMeter(Meter):
 
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0
+
+
+if __name__ == '__main__':
+    CIFAR10(root='data/CIFAR10', mode='train', download=True)
