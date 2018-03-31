@@ -83,7 +83,7 @@ class CIFAR10(MNIST):
         with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
             torch.save(test_multi_set, f)
 
-    def __loadfile(self, data_file, labels_file=None):
+    def __loadfile(self, data_file):
         data = []
         labels = []
         for f in data_file:
