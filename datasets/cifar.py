@@ -12,7 +12,6 @@ else:
     import pickle
 import errno
 import torch
-from PIL import Image
 
 
 class CIFAR10(MNIST):
@@ -23,15 +22,6 @@ class CIFAR10(MNIST):
     test_list = ['test_batch']
 
     base_folder = 'cifar-10-batches-py'
-
-    def __getitem__(self, index):
-        img, target = self.data[index], self.labels[index]
-        img = Image.fromarray(img.numpy())
-
-        if self.transform is not None:
-            img = self.transform(img)
-
-        return img, target
 
     def download(self):
         from six.moves import urllib

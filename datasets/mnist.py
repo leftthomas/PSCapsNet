@@ -46,7 +46,7 @@ class MNIST(data.Dataset):
 
     def __getitem__(self, index):
         img, target = self.data[index], self.labels[index]
-        img = Image.fromarray(img.numpy(), mode='L')
+        img = Image.fromarray(img.numpy())
 
         if self.transform is not None:
             img = self.transform(img)
