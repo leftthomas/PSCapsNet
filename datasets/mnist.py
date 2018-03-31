@@ -98,6 +98,8 @@ class MNIST(data.Dataset):
                         gzip.GzipFile(file_path) as zip_f:
                     out_f.write(zip_f.read())
                 os.unlink(file_path)
+            else:
+                urllib.request.urlretrieve(url, os.path.join(self.root, self.raw_folder, filename))
 
         train_data, train_labels = self.loadfile(self.train_list)
         test_data, test_labels = self.loadfile(self.test_list)
