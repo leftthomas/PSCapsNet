@@ -1,10 +1,8 @@
-import cv2
 import numpy as np
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch import nn
-from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchnet.meter.meter import Meter
 
@@ -45,74 +43,6 @@ class MarginLoss(nn.Module):
         right = F.relu(classes - 0.05, inplace=True) ** 2
         loss = labels * left + (0.5 / (classes.size(-1) - 1)) * (1 - labels) * right
         return loss.mean()
-
-
-class GradCam:
-    def __init__(self, model):
-        self.model = model.eval()
-        self.feature = None
-        self.gradient = None
-
-    def save_gradient(self, grad):
-        self.gradient = grad
-
-    def __call__(self, x):
-        image_size = (x.size(-1), x.size(-2))
-        datas = Variable(x)
-        heat_maps = []
-        for i in range(datas.size(0)):
-            img = datas[i].data.cpu().numpy()
-            feature = datas[i].unsqueeze(0)
-            for name, module in self.model.named_children():
-                if name == 'classifier':
-                    if self.model.net_mode == 'Capsule':
-                        feature = feature.permute(0, 2, 3, 1)
-                        feature = feature.contiguous().view(feature.size(0), -1, module.weight.size(-1))
-                    else:
-                        feature = feature.view(feature.size(0), -1)
-                feature = module(feature)
-                if name == 'features':
-                    feature.register_hook(self.save_gradient)
-                    self.feature = feature
-            if self.model.net_mode == 'Capsule':
-                # don't apply squash, just got the score
-                classes = feature.norm(dim=-1)
-            else:
-                # don't apply sigmoid, just got the score
-                classes = feature
-
-            # this is test_multi, we save top2 GradCAM
-            if image_size[0] != image_size[1]:
-                one_hots, _ = classes.topk(k=2, dim=-1)
-                masks = []
-                for i in range(2):
-                    one_hot = one_hots[:, i]
-                    self.model.zero_grad()
-                    one_hot.backward(retain_graph=True)
-                    weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
-                    mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
-                    masks.append(mask)
-                mask = masks[0] + masks[1]
-            else:
-                one_hot, _ = classes.max(dim=-1)
-                self.model.zero_grad()
-                one_hot.backward()
-                weight = self.gradient.mean(dim=-1, keepdim=True).mean(dim=-2, keepdim=True)
-                mask = F.relu((weight * self.feature).sum(dim=1)).squeeze(0)
-
-            mask = cv2.resize(mask.data.cpu().numpy(), image_size)
-            mask = mask - np.min(mask)
-            if np.max(mask) != 0:
-                mask = mask / np.max(mask)
-            heat_map = np.float32(cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET))
-
-            cam = heat_map + np.float32(np.uint8(img.transpose((1, 2, 0)) * 255))
-            cam = cam - np.min(cam)
-            if np.max(cam) != 0:
-                cam = cam / np.max(cam)
-            heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
-        heat_maps = torch.stack(heat_maps)
-        return heat_maps
 
 
 def get_iterator(data_type, mode, batch_size=50):

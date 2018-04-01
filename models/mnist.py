@@ -1,6 +1,5 @@
 import torch.nn.functional as F
 from capsule_layer import CapsuleLinear
-from capsule_layer.functional import flaser
 from torch import nn
 
 
@@ -9,17 +8,17 @@ class MNISTNet(nn.Module):
         super(MNISTNet, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1), nn.ReLU())
-        self.features = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1), nn.ReLU(),
-                                      nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.ReLU(),
-                                      nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1), nn.ReLU())
+        self.conv1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=3, padding=1), nn.ReLU())
+        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1), nn.ReLU(),
+                                      nn.Conv2d(64, 128, kernel_size=3, padding=1), nn.ReLU(),
+                                      nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=64, out_length=4, routing_type=routing_type,
-                                            num_iterations=num_iterations, squash=False)
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=32, routing_type=routing_type,
+                                            num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=64, out_features=32), nn.ReLU(),
-                                            nn.Linear(in_features=32, out_features=10))
+            self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=128), nn.ReLU(),
+                                            nn.Linear(in_features=128, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
@@ -27,9 +26,8 @@ class MNISTNet(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 64)
+            out = out.contiguous().view(out.size(0), -1, 128)
             out = self.classifier(out)
-            out = flaser(out, dim=-1)
             classes = out.norm(dim=-1)
         else:
             out = self.pool(out)
