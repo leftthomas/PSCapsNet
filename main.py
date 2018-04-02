@@ -95,7 +95,7 @@ def on_end_epoch(state):
 
     # multi image visualization
     test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8, USE_DA)))
-    multi_image_logger.log(make_grid(test_multi_image, nrow=2, padding=4).numpy())
+    multi_image_logger.log(make_grid(test_multi_image, nrow=2, padding=4, normalize=True).numpy())
 
     # save model
     torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))
