@@ -26,6 +26,7 @@ python -m visdom.server -logging_level WARNING & python main.py --data_type CIFA
 optional arguments:
 --data_type                   dataset type [default value is 'MNIST'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'])
 --net_mode                    network mode [default value is 'Capsule'](choices:['Capsule', 'CNN'])
+--use_da                      use data augmentation or not [default value is False]
 --routing_type                routing type [default value is 'k_means'](choices:['k_means', 'dynamic'])
 --num_iterations              routing iterations number [default value is 3]
 --batch_size                  train batch size [default value is 50]

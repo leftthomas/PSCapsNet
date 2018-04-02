@@ -74,7 +74,7 @@ def on_end_epoch(state):
 
     # test single
     reset_meters()
-    engine.test(processor, get_iterator(DATA_TYPE, 'test_single', BATCH_SIZE))
+    engine.test(processor, get_iterator(DATA_TYPE, 'test_single', BATCH_SIZE, USE_DA))
     test_single_loss_logger.log(state['epoch'], meter_loss.value()[0])
     test_single_accuracy_logger.log(state['epoch'], meter_accuracy.value()[0])
     test_confusion_logger.log(meter_confusion.value())
@@ -85,7 +85,7 @@ def on_end_epoch(state):
 
     # test multi
     reset_meters()
-    engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE))
+    engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE, USE_DA))
     test_multi_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value()[0])
     test_multi_confidence_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value()[1])
     results['test_multi_accuracy'].append(meter_multi_accuracy.value()[0])
@@ -94,7 +94,7 @@ def on_end_epoch(state):
         state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
     # multi image visualization
-    test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8)))
+    test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8, USE_DA)))
     multi_image_logger.log(make_grid(test_multi_image, nrow=2, padding=4).numpy())
 
     # save model
@@ -119,6 +119,7 @@ if __name__ == '__main__':
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'],
                         help='dataset type')
     parser.add_argument('--net_mode', default='Capsule', type=str, choices=['Capsule', 'CNN'], help='network mode')
+    parser.add_argument('--use_da', action='store_true', help='use data augmentation or not')
     parser.add_argument('--routing_type', default='k_means', type=str, choices=['k_means', 'dynamic'],
                         help='routing type')
     parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
@@ -129,6 +130,7 @@ if __name__ == '__main__':
 
     DATA_TYPE = opt.data_type
     NET_MODE = opt.net_mode
+    USE_DA = opt.use_da
     ROUTING_TYPE = opt.routing_type
     NUM_ITERATIONS = opt.num_iterations
     BATCH_SIZE = opt.batch_size
@@ -179,4 +181,5 @@ if __name__ == '__main__':
     engine.hooks['on_start_epoch'] = on_start_epoch
     engine.hooks['on_end_epoch'] = on_end_epoch
 
-    engine.train(processor, get_iterator(DATA_TYPE, 'train', BATCH_SIZE), maxepoch=NUM_EPOCHS, optimizer=optimizer)
+    engine.train(processor, get_iterator(DATA_TYPE, 'train', BATCH_SIZE, USE_DA), maxepoch=NUM_EPOCHS,
+                 optimizer=optimizer)

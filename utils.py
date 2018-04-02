@@ -33,6 +33,36 @@ data_set = {'MNIST': MNIST, 'FashionMNIST': FashionMNIST, 'SVHN': SVHN, 'CIFAR10
 models = {'MNIST': MNISTNet, 'FashionMNIST': FashionMNISTNet, 'SVHN': SVHNNet, 'CIFAR10': CIFAR10Net,
           'CIFAR100': CIFAR100Net, 'STL10': STL10Net}
 
+transform_value = {'MNIST': transforms.Normalize((0.1306604762738429,), (0.30810780717887876,)),
+                   'FashionMNIST': transforms.Normalize((0.2860405969887955,), (0.35302424825650003,)),
+                   'SVHN': transforms.Normalize((0.4376821, 0.4437697, 0.47280442),
+                                                (0.19803012, 0.20101562, 0.19703614)),
+                   'CIFAR10': transforms.Normalize((0.49139968, 0.48215841, 0.44653091),
+                                                   (0.24703223, 0.24348513, 0.26158784)),
+                   'CIFAR100': transforms.Normalize((0.50707516, 0.48654887, 0.44091784),
+                                                    (0.26733429, 0.25643846, 0.27615047)),
+                   'STL10': transforms.Normalize((0.44671062, 0.43980984, 0.40664645),
+                                                 (0.26034098, 0.25657727, 0.27126738))}
+transform_trains = {'MNIST': transforms.Compose(
+    [transforms.RandomCrop(28, padding=2), transforms.ToTensor(),
+     transforms.Normalize((0.1306604762738429,), (0.30810780717887876,))]),
+    'FashionMNIST': transforms.Compose(
+        [transforms.RandomCrop(28, padding=2), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+         transforms.Normalize((0.2860405969887955,), (0.35302424825650003,))]),
+    'SVHN': transforms.Compose([transforms.RandomCrop(32, padding=2), transforms.ToTensor(),
+                                transforms.Normalize((0.4376821, 0.4437697, 0.47280442),
+                                                     (0.19803012, 0.20101562, 0.19703614))]),
+    'CIFAR10': transforms.Compose(
+        [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+         transforms.Normalize((0.49139968, 0.48215841, 0.44653091), (0.24703223, 0.24348513, 0.26158784))]),
+    'CIFAR100': transforms.Compose(
+        [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+         transforms.Normalize((0.50707516, 0.48654887, 0.44091784), (0.26733429, 0.25643846, 0.27615047))
+         ]),
+    'STL10': transforms.Compose(
+        [transforms.RandomCrop(96, padding=6), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+         transforms.Normalize((0.44671062, 0.43980984, 0.40664645), (0.26034098, 0.25657727, 0.27126738))])}
+
 
 class MarginLoss(nn.Module):
     def __init__(self):
@@ -45,8 +75,22 @@ class MarginLoss(nn.Module):
         return loss.mean()
 
 
-def get_iterator(data_type, mode, batch_size=50):
-    data = data_set[data_type](root='data/' + data_type, mode=mode, transform=transforms.ToTensor(), download=True)
+def get_iterator(data_type, mode, batch_size=50, use_data_augmentation=False):
+    if use_data_augmentation:
+        transform_train = transform_trains[data_type]
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transform_value[data_type]
+        ])
+    else:
+        transform_train = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        transform_test = transforms.Compose([
+            transforms.ToTensor()
+        ])
+    data = data_set[data_type](root='data/' + data_type, mode=mode,
+                               transform=transform_train if mode == 'train' else transform_test, download=True)
     return DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4)
 
 
