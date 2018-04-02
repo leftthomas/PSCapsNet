@@ -17,8 +17,8 @@ class MNISTNet(nn.Module):
                                             num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=96), nn.ReLU(),
-                                            nn.Linear(in_features=96, out_features=10))
+            self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=72), nn.ReLU(),
+                                            nn.Linear(in_features=72, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
