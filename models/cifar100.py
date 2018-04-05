@@ -15,7 +15,7 @@ class CIFAR100Net(nn.Module):
         if self.net_mode == 'Capsule':
             self.classifier = nn.Sequential(
                 CapsuleLinear(out_capsules=128, in_length=128, out_length=16, routing_type=routing_type,
-                              num_iterations=num_iterations),
+                              num_iterations=num_iterations, squash=False),
                 CapsuleLinear(out_capsules=100, in_length=16, out_length=32, in_capsules=128, share_weight=False,
                               routing_type=routing_type, num_iterations=num_iterations))
         else:
