@@ -8,20 +8,22 @@ class STL10Net(nn.Module):
         super(STL10Net, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, padding=1), nn.ReLU())
-        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1), nn.ReLU(),
-                                      nn.Conv2d(64, 128, kernel_size=3, padding=1), nn.ReLU(),
-                                      nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1), nn.ReLU())
+        self.conv1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3), nn.ReLU())
+        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, stride=2), nn.ReLU(),
+                                      nn.Conv2d(64, 128, kernel_size=3), nn.ReLU(),
+                                      nn.Conv2d(128, 128, kernel_size=3, stride=2), nn.ReLU(),
+                                      nn.Conv2d(128, 256, kernel_size=3), nn.ReLU(),
+                                      nn.Conv2d(256, 256, kernel_size=3, stride=2), nn.ReLU())
         if self.net_mode == 'Capsule':
             self.classifier = nn.Sequential(
-                CapsuleLinear(out_capsules=64, in_length=128, out_length=16, routing_type=routing_type,
+                CapsuleLinear(out_capsules=32, in_length=256, out_length=16, routing_type=routing_type,
                               num_iterations=num_iterations, squash=False),
                 CapsuleLinear(out_capsules=10, in_length=16, out_length=32, routing_type=routing_type,
                               num_iterations=num_iterations))
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=128, out_features=128), nn.ReLU(),
-                                            nn.Linear(in_features=128, out_features=10))
+            self.classifier = nn.Sequential(nn.Linear(in_features=256, out_features=256), nn.ReLU(),
+                                            nn.Linear(in_features=256, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
@@ -29,7 +31,7 @@ class STL10Net(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 128)
+            out = out.contiguous().view(out.size(0), -1, 256)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
