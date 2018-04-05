@@ -16,7 +16,7 @@ class STL10Net(nn.Module):
                                       nn.Conv2d(256, 256, kernel_size=3, stride=2), nn.ReLU())
         if self.net_mode == 'Capsule':
             self.classifier = nn.Sequential(
-                CapsuleLinear(out_capsules=32, in_length=256, out_length=16, routing_type=routing_type,
+                CapsuleLinear(out_capsules=16, in_length=256, out_length=16, routing_type=routing_type,
                               num_iterations=num_iterations, squash=False),
                 CapsuleLinear(out_capsules=10, in_length=16, out_length=32, routing_type=routing_type,
                               num_iterations=num_iterations))
