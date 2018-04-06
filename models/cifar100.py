@@ -14,9 +14,9 @@ class CIFAR100Net(nn.Module):
                                       nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1), nn.ReLU())
         if self.net_mode == 'Capsule':
             self.classifier = nn.Sequential(
-                CapsuleLinear(out_capsules=96, in_length=128, out_length=32, routing_type=routing_type,
+                CapsuleLinear(out_capsules=128, in_length=128, out_length=32, routing_type=routing_type,
                               num_iterations=num_iterations),
-                CapsuleLinear(out_capsules=100, in_length=32, out_length=16, in_capsules=96, share_weight=False,
+                CapsuleLinear(out_capsules=100, in_length=32, out_length=16, in_capsules=128, share_weight=False,
                               routing_type=routing_type, num_iterations=num_iterations))
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=2)
