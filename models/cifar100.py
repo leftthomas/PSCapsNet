@@ -16,8 +16,8 @@ class CIFAR100Net(nn.Module):
             self.classifier = nn.Sequential(
                 CapsuleLinear(out_capsules=96, in_length=128, out_length=32, routing_type=routing_type,
                               num_iterations=num_iterations),
-                CapsuleLinear(out_capsules=100, in_length=32, out_length=16, routing_type=routing_type,
-                              num_iterations=num_iterations))
+                CapsuleLinear(out_capsules=100, in_length=32, out_length=16, in_capsules=96, share_weight=False,
+                              routing_type=routing_type, num_iterations=num_iterations))
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=2)
             self.classifier = nn.Sequential(nn.Linear(in_features=512, out_features=256), nn.ReLU(),
