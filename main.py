@@ -116,8 +116,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Train Classfication')
     parser.add_argument('--data_type', default='MNIST', type=str,
-                        choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'CIFAR100', 'STL10'],
-                        help='dataset type')
+                        choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--net_mode', default='Capsule', type=str, choices=['Capsule', 'CNN'], help='network mode')
     parser.add_argument('--use_da', action='store_true', help='use data augmentation or not')
     parser.add_argument('--routing_type', default='k_means', type=str, choices=['k_means', 'dynamic'],
@@ -141,8 +140,6 @@ if __name__ == '__main__':
 
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
-    if DATA_TYPE == 'CIFAR100':
-        CLASSES = 100
 
     model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS)
     loss_criterion = MarginLoss()

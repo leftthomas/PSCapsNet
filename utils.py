@@ -6,62 +6,44 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchnet.meter.meter import Meter
 
-from datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST, STL10, SVHN
-from models import CIFAR10Net, CIFAR100Net, FashionMNISTNet, MNISTNet, STL10Net, SVHNNet
+from datasets import CIFAR10, MNIST, FashionMNIST, STL10, SVHN
+from models import CIFAR10Net, FashionMNISTNet, MNISTNet, STL10Net, SVHNNet
 
-CLASS_NAME = {'MNIST': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-              'FashionMNIST': ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker',
-                               'Bag', 'Ankle boot'],
-              'SVHN': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-              'CIFAR10': ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'],
-              'CIFAR100': ['apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 'beetle', 'bicycle',
-                           'bottle', 'bowl', 'boy', 'bridge', 'bus', 'butterfly', 'camel', 'can', 'castle',
-                           'caterpillar', 'cattle', 'chair', 'chimpanzee', 'clock', 'cloud', 'cockroach', 'couch',
-                           'crab', 'crocodile', 'cup', 'dinosaur', 'dolphin', 'elephant', 'flatfish', 'forest', 'fox',
-                           'girl', 'hamster', 'house', 'kangaroo', 'keyboard', 'lamp', 'lawn_mower', 'leopard', 'lion',
-                           'lizard', 'lobster', 'man', 'maple_tree', 'motorcycle', 'mountain', 'mouse', 'mushroom',
-                           'oak_tree', 'orange', 'orchid', 'otter', 'palm_tree', 'pear', 'pickup_truck', 'pine_tree',
-                           'plain', 'plate', 'poppy', 'porcupine', 'possum', 'rabbit', 'raccoon', 'ray', 'road',
-                           'rocket', 'rose', 'sea', 'seal', 'shark', 'shrew', 'skunk', 'skyscraper', 'snail', 'snake',
-                           'spider', 'squirrel', 'streetcar', 'sunflower', 'sweet_pepper', 'table', 'tank', 'telephone',
-                           'television', 'tiger', 'tractor', 'train', 'trout', 'tulip', 'turtle', 'wardrobe', 'whale',
-                           'willow_tree', 'wolf', 'woman', 'worm'],
-              'STL10': ['airplane', 'bird', 'car', 'cat', 'deer', 'dog', 'horse', 'monkey', 'ship', 'truck']}
+CLASS_NAME = {
+    'MNIST': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    'FashionMNIST': ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag',
+                     'Ankle boot'],
+    'SVHN': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    'CIFAR10': ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'],
+    'STL10': ['airplane', 'bird', 'car', 'cat', 'deer', 'dog', 'horse', 'monkey', 'ship', 'truck']
+}
 
-data_set = {'MNIST': MNIST, 'FashionMNIST': FashionMNIST, 'SVHN': SVHN, 'CIFAR10': CIFAR10, 'CIFAR100': CIFAR100,
-            'STL10': STL10}
-models = {'MNIST': MNISTNet, 'FashionMNIST': FashionMNISTNet, 'SVHN': SVHNNet, 'CIFAR10': CIFAR10Net,
-          'CIFAR100': CIFAR100Net, 'STL10': STL10Net}
+data_set = {'MNIST': MNIST, 'FashionMNIST': FashionMNIST, 'SVHN': SVHN, 'CIFAR10': CIFAR10, 'STL10': STL10}
+models = {'MNIST': MNISTNet, 'FashionMNIST': FashionMNISTNet, 'SVHN': SVHNNet, 'CIFAR10': CIFAR10Net, 'STL10': STL10Net}
 
-transform_value = {'MNIST': transforms.Normalize((0.1306604762738429,), (0.30810780717887876,)),
-                   'FashionMNIST': transforms.Normalize((0.2860405969887955,), (0.35302424825650003,)),
-                   'SVHN': transforms.Normalize((0.4376821, 0.4437697, 0.47280442),
-                                                (0.19803012, 0.20101562, 0.19703614)),
-                   'CIFAR10': transforms.Normalize((0.49139968, 0.48215841, 0.44653091),
-                                                   (0.24703223, 0.24348513, 0.26158784)),
-                   'CIFAR100': transforms.Normalize((0.50707516, 0.48654887, 0.44091784),
-                                                    (0.26733429, 0.25643846, 0.27615047)),
-                   'STL10': transforms.Normalize((0.44671062, 0.43980984, 0.40664645),
-                                                 (0.26034098, 0.25657727, 0.27126738))}
-transform_trains = {'MNIST': transforms.Compose(
-    [transforms.RandomCrop(28, padding=2), transforms.ToTensor(),
-     transforms.Normalize((0.1306604762738429,), (0.30810780717887876,))]),
+transform_value = {
+    'MNIST': transforms.Normalize((0.1307,), (0.3081,)),
+    'FashionMNIST': transforms.Normalize((0.2860,), (0.3530,)),
+    'SVHN': transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+    'CIFAR10': transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
+    'STL10': transforms.Normalize((0.4467, 0.4398, 0.4066), (0.2603, 0.2566, 0.2713))
+}
+transform_trains = {
+    'MNIST': transforms.Compose(
+        [transforms.RandomCrop(28, padding=2), transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]),
     'FashionMNIST': transforms.Compose(
         [transforms.RandomCrop(28, padding=2), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
-         transforms.Normalize((0.2860405969887955,), (0.35302424825650003,))]),
-    'SVHN': transforms.Compose([transforms.RandomCrop(32, padding=2), transforms.ToTensor(),
-                                transforms.Normalize((0.4376821, 0.4437697, 0.47280442),
-                                                     (0.19803012, 0.20101562, 0.19703614))]),
+         transforms.Normalize((0.2860,), (0.3530,))]),
+    'SVHN': transforms.Compose(
+        [transforms.RandomCrop(32, padding=2), transforms.ToTensor(),
+         transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970))]),
     'CIFAR10': transforms.Compose(
         [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
-         transforms.Normalize((0.49139968, 0.48215841, 0.44653091), (0.24703223, 0.24348513, 0.26158784))]),
-    'CIFAR100': transforms.Compose(
-        [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
-         transforms.Normalize((0.50707516, 0.48654887, 0.44091784), (0.26733429, 0.25643846, 0.27615047))
-         ]),
+         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))]),
     'STL10': transforms.Compose(
         [transforms.RandomCrop(96, padding=6), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
-         transforms.Normalize((0.44671062, 0.43980984, 0.40664645), (0.26034098, 0.25657727, 0.27126738))])}
+         transforms.Normalize((0.4467, 0.4398, 0.4066), (0.2603, 0.2566, 0.2713))])
+}
 
 
 class MarginLoss(nn.Module):
