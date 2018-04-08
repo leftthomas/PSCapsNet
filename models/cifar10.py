@@ -22,7 +22,7 @@ class CIFAR10Net(nn.Module):
         if self.net_mode == 'Capsule':
             self.classifier = nn.Sequential(
                 CapsuleLinear(out_capsules=32, in_length=32, out_length=8, routing_type=routing_type,
-                              num_iterations=num_iterations),
+                              num_iterations=num_iterations, squash=False),
                 CapsuleLinear(out_capsules=10, in_length=8, out_length=4, routing_type=routing_type,
                               num_iterations=num_iterations))
         else:
