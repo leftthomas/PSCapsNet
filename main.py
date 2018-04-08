@@ -7,7 +7,6 @@ from torch.autograd import Variable
 from torch.optim import Adam
 from torchnet.engine import Engine
 from torchnet.logger import VisdomPlotLogger, VisdomLogger
-from torchvision.utils import make_grid
 from tqdm import tqdm
 
 from utils import get_iterator, CLASS_NAME, models, MultiClassAccuracyMeter, MarginLoss
@@ -93,10 +92,6 @@ def on_end_epoch(state):
     print('[Epoch %d] Testing Multi Accuracy: %.2f%% Testing Multi Confidence Accuracy: %.2f%%' % (
         state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
-    # multi image visualization
-    test_multi_image, test_multi_labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8, USE_DA)))
-    multi_image_logger.log(make_grid(test_multi_image, nrow=2, padding=4, normalize=True).numpy())
-
     # save model
     torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))
     # save statistics at every 10 epochs
@@ -170,8 +165,6 @@ if __name__ == '__main__':
     test_confusion_logger = VisdomLogger('heatmap', env=DATA_TYPE,
                                          opts={'title': 'Test Confusion Matrix', 'columnnames': class_name,
                                                'rownames': class_name})
-    multi_image_logger = VisdomLogger('image', env=DATA_TYPE,
-                                      opts={'title': 'Multi Image', 'width': 371, 'height': 335})
 
     engine.hooks['on_sample'] = on_sample
     engine.hooks['on_forward'] = on_forward
