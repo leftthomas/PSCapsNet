@@ -8,13 +8,13 @@ class FashionMNISTNet(nn.Module):
         super(FashionMNISTNet, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=3), nn.ReLU())
-        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3), nn.ReLU(),
+        self.conv1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=3), nn.BatchNorm2d(64), nn.ReLU())
+        self.features = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3), nn.BatchNorm2d(64), nn.ReLU(),
                                       nn.AvgPool2d(kernel_size=2),
-                                      nn.Conv2d(64, 128, kernel_size=3), nn.ReLU(),
-                                      nn.Conv2d(128, 128, kernel_size=3), nn.ReLU())
+                                      nn.Conv2d(64, 128, kernel_size=3), nn.BatchNorm2d(128), nn.ReLU(),
+                                      nn.Conv2d(128, 128, kernel_size=3), nn.BatchNorm2d(128), nn.ReLU())
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=16, routing_type=routing_type,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=64, out_length=16, routing_type=routing_type,
                                             num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
@@ -27,7 +27,7 @@ class FashionMNISTNet(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 128)
+            out = out.contiguous().view(out.size(0), -1, 64)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
