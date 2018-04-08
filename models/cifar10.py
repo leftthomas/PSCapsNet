@@ -15,7 +15,7 @@ class CIFAR10Net(nn.Module):
                                       nn.Conv2d(128, 128, kernel_size=3, padding=1), nn.ReLU(),
                                       nn.AvgPool2d(kernel_size=2))
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=16, routing_type=routing_type,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=64, out_length=16, routing_type=routing_type,
                                             num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
@@ -27,8 +27,8 @@ class CIFAR10Net(nn.Module):
         out = self.features(out)
 
         if self.net_mode == 'Capsule':
-            out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 32)
+            # out = out.permute(0, 2, 3, 1)
+            out = out.contiguous().view(out.size(0), -1, 64)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
