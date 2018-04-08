@@ -27,7 +27,7 @@ class CIFAR10Net(nn.Module):
         out = self.features(out)
 
         if self.net_mode == 'Capsule':
-            # out = out.permute(0, 2, 3, 1)
+            out = out.permute(0, 2, 3, 1)
             out = out.contiguous().view(out.size(0), -1, 64)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
