@@ -1,6 +1,3 @@
-import math
-
-import torch
 import torch.nn as nn
 
 
@@ -164,13 +161,13 @@ class ResNet(nn.Module):
         self.avgpool = nn.AvgPool2d(8, stride=1)
         self.fc = nn.Linear(64 * block.expansion, num_classes)
 
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
+        # for m in self.modules():
+        #     if isinstance(m, nn.Conv2d):
+        #         n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+        #         m.weight.data.normal_(0, math.sqrt(2. / n))
+        #     elif isinstance(m, nn.BatchNorm2d):
+        #         m.weight.data.fill_(1)
+        #         m.bias.data.zero_()
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
@@ -217,13 +214,13 @@ class PreActResNet(nn.Module):
         self.avgpool = nn.AvgPool2d(8, stride=1)
         self.fc = nn.Linear(64 * block.expansion, num_classes)
 
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
+        # for m in self.modules():
+        #     if isinstance(m, nn.Conv2d):
+        #         n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+        #         m.weight.data.normal_(0, math.sqrt(2. / n))
+        #     elif isinstance(m, nn.BatchNorm2d):
+        #         m.weight.data.fill_(1)
+        #         m.bias.data.zero_()
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
@@ -303,9 +300,3 @@ def preact_resnet1001(**kwargs):
     model = PreActResNet(PreActBottleneck, [111, 111, 111], **kwargs)
     return model
 
-
-if __name__ == '__main__':
-    net = preact_resnet110()
-    y = net(torch.autograd.Variable(torch.randn(1, 3, 32, 32)))
-    print(net)
-    print(y.size())
