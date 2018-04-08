@@ -10,7 +10,7 @@ class CIFAR10Net(nn.Module):
         super(CIFAR10Net, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=3, padding=1, bias=False))
+        self.conv1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=3, padding=1))
 
         layers = []
         for name, module in resnet20().named_children():
