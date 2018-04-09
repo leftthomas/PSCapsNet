@@ -20,7 +20,7 @@ class STL10Net(nn.Module):
                               num_iterations=num_iterations))
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=441, out_features=256), nn.ReLU(),
+            self.classifier = nn.Sequential(nn.Linear(in_features=462, out_features=256), nn.ReLU(),
                                             nn.Linear(in_features=256, out_features=10))
 
     def forward(self, x):
