@@ -19,9 +19,9 @@ class STL10Net(nn.Module):
                 CapsuleLinear(out_capsules=10, in_length=16, out_length=8, routing_type=routing_type,
                               num_iterations=num_iterations))
         else:
-            self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=462, out_features=256), nn.ReLU(),
-                                            nn.Linear(in_features=256, out_features=10))
+            self.pool = nn.AdaptiveAvgPool2d(output_size=4)
+            self.classifier = nn.Sequential(nn.Linear(in_features=2048, out_features=512), nn.ReLU(),
+                                            nn.Linear(in_features=512, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
