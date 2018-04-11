@@ -149,7 +149,7 @@ class PreActBottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=10):
+    def __init__(self, block, layers, stl10=False, num_classes=10):
         super(ResNet, self).__init__()
         self.inplanes = 16
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -158,6 +158,9 @@ class ResNet(nn.Module):
         self.layer1 = self._make_layer(block, 16, layers[0])
         self.layer2 = self._make_layer(block, 32, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
+        self.stl10 = stl10
+        if self.stl10:
+            self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(8, stride=1)
         self.fc = nn.Linear(64 * block.expansion, num_classes)
 
@@ -184,6 +187,8 @@ class ResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
+        if self.stl10:
+            x = self.layer4(x)
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
@@ -194,13 +199,16 @@ class ResNet(nn.Module):
 
 class PreActResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=10):
+    def __init__(self, block, layers, stl10=False, num_classes=10):
         super(PreActResNet, self).__init__()
         self.inplanes = 16
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.layer1 = self._make_layer(block, 16, layers[0])
         self.layer2 = self._make_layer(block, 32, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
+        self.stl10 = stl10
+        if self.stl10:
+            self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
         self.bn = nn.BatchNorm2d(64 * block.expansion)
         self.relu = nn.ReLU(inplace=True)
         self.avgpool = nn.AvgPool2d(8, stride=1)
@@ -225,6 +233,8 @@ class PreActResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
+        if self.stl10:
+            x = self.layer4(x)
 
         x = self.bn(x)
         x = self.relu(x)
@@ -240,47 +250,17 @@ def resnet20(**kwargs):
     return model
 
 
-def resnet32(**kwargs):
-    model = ResNet(BasicBlock, [5, 5, 5], **kwargs)
+def preact_resnet20(**kwargs):
+    model = PreActResNet(PreActBasicBlock, [3, 3, 3], **kwargs)
     return model
 
 
-def resnet44(**kwargs):
-    model = ResNet(BasicBlock, [7, 7, 7], **kwargs)
+def resnet26_stl10(**kwargs):
+    model = ResNet(BasicBlock, [3, 3, 3, 3], stl10=True, **kwargs)
     return model
 
 
-def resnet56(**kwargs):
-    model = ResNet(BasicBlock, [9, 9, 9], **kwargs)
-    return model
-
-
-def resnet110(**kwargs):
-    model = ResNet(BasicBlock, [18, 18, 18], **kwargs)
-    return model
-
-
-def resnet164(**kwargs):
-    model = ResNet(Bottleneck, [18, 18, 18], **kwargs)
-    return model
-
-
-def resnet1001(**kwargs):
-    model = ResNet(Bottleneck, [111, 111, 111], **kwargs)
-    return model
-
-
-def preact_resnet110(**kwargs):
-    model = PreActResNet(PreActBasicBlock, [18, 18, 18], **kwargs)
-    return model
-
-
-def preact_resnet164(**kwargs):
-    model = PreActResNet(PreActBottleneck, [18, 18, 18], **kwargs)
-    return model
-
-
-def preact_resnet1001(**kwargs):
-    model = PreActResNet(PreActBottleneck, [111, 111, 111], **kwargs)
+def preact_resnet26_stl10(**kwargs):
+    model = PreActResNet(PreActBasicBlock, [3, 3, 3, 3], stl10=True, **kwargs)
     return model
 
