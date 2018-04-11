@@ -36,6 +36,24 @@ Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your b
 `$data_type` means the dataset type which you are training.
 
 ## Results
-The train loss、accuracy, test loss、accuracy, and confusion matrix are showed with visdom,
-the best test accuracy is ~ 95.72%.
-![result](results/result.png)
+The train loss、accuracy, test loss、accuracy, and confusion matrix are showed with visdom.
+
+1. MNIST Result
+
+- Capsule
+
+![result](results/capsule_mnist.png)
+
+- CNN
+
+![result](results/cnn_mnist.png)
+
+2. FashionMNIST Result
+
+- Capsule
+
+![result](results/capsule_fashionmnist.png)
+
+- CNN
+
+![result](results/cnn_fashionmnist.png)
