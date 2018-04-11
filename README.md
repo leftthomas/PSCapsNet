@@ -38,8 +38,7 @@ Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your b
 ## Results
 The train loss、accuracy, test loss、accuracy, and confusion matrix are showed with visdom.
 
-1. MNIST Result
-
+### MNIST Result
 - Capsule
 
 ![result](results/capsule_mnist.png)
@@ -48,8 +47,7 @@ The train loss、accuracy, test loss、accuracy, and confusion matrix are showed
 
 ![result](results/cnn_mnist.png)
 
-2. FashionMNIST Result
-
+### FashionMNIST Result
 - Capsule
 
 ![result](results/capsule_fashionmnist.png)
@@ -57,3 +55,12 @@ The train loss、accuracy, test loss、accuracy, and confusion matrix are showed
 - CNN
 
 ![result](results/cnn_fashionmnist.png)
+
+### SVHN Result
+- Capsule
+
+![result](results/capsule_svhn.png)
+
+- CNN
+
+![result](results/cnn_svhn.png)
