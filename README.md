@@ -64,3 +64,12 @@ The train loss、accuracy, test loss、accuracy, and confusion matrix are showed
 - CNN
 
 ![result](results/cnn_svhn.png)
+
+### CIFAR10
+- Capsule
+
+![result](results/capsule_cifar10.png)
+
+- CNN
+
+![result](results/cnn_cifar10.png)
