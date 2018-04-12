@@ -20,7 +20,7 @@ class CIFAR10Net(nn.Module):
         self.features = nn.Sequential(*layers)
 
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=8, routing_type=routing_type,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=16, routing_type=routing_type,
                                             num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
