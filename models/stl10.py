@@ -2,7 +2,7 @@ import torch.nn.functional as F
 from capsule_layer import CapsuleLinear
 from torch import nn
 
-from resnet import resnet26_stl10
+from resnet import preact_resnet26_stl10
 
 
 class STL10Net(nn.Module):
@@ -13,14 +13,14 @@ class STL10Net(nn.Module):
         self.conv1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=3, padding=1, bias=False))
 
         layers = []
-        for name, module in resnet26_stl10().named_children():
+        for name, module in preact_resnet26_stl10().named_children():
             if name == 'conv1' or isinstance(module, nn.AvgPool2d) or isinstance(module, nn.Linear):
                 continue
             layers.append(module)
         self.features = nn.Sequential(*layers)
 
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=16, routing_type=routing_type,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=8, routing_type=routing_type,
                                             num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
