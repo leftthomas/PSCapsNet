@@ -73,3 +73,12 @@ The train loss、accuracy, test loss、accuracy, and confusion matrix are showed
 - CNN
 
 ![result](results/cnn_cifar10.png)
+
+### STL10
+- Capsule
+
+![result](results/capsule_stl10.png)
+
+- CNN
+
+![result](results/cnn_stl10.png)
