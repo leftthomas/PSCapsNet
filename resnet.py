@@ -2,7 +2,6 @@ import torch.nn as nn
 
 
 class BasicBlock(nn.Module):
-    expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
@@ -12,7 +11,6 @@ class BasicBlock(nn.Module):
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
-        self.stride = stride
 
     def forward(self, x):
         residual = x
@@ -48,18 +46,18 @@ class ResNet(nn.Module):
         if self.stl10:
             self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(8, stride=1)
-        self.fc = nn.Linear(64 * block.expansion, num_classes)
+        self.fc = nn.Linear(64, num_classes)
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
+        if stride != 1 or self.inplanes != planes:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(planes * block.expansion)
+                nn.Conv2d(self.inplanes, planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes)
             )
 
         layers = [block(self.inplanes, planes, stride, downsample)]
-        self.inplanes = planes * block.expansion
+        self.inplanes = planes
         for _ in range(1, blocks):
             layers.append(block(self.inplanes, planes))
 
