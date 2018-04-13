@@ -126,11 +126,11 @@ class ResNet(nn.Module):
 
 
 def resnet20(**kwargs):
-    model = ResNet(BasicBlock, [3, 3, 3], **kwargs)
+    model = ResNet(Bottleneck, [3, 3, 3], **kwargs)
     return model
 
 
 def resnet26_stl10(**kwargs):
-    model = ResNet(BasicBlock, [3, 3, 3, 3], stl10=True, **kwargs)
+    model = ResNet(Bottleneck, [3, 3, 3, 3], stl10=True, **kwargs)
     return model
 
