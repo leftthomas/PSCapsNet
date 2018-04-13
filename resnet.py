@@ -75,78 +75,6 @@ class Bottleneck(nn.Module):
         return out
 
 
-class PreActBasicBlock(nn.Module):
-    expansion = 1
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
-        super(PreActBasicBlock, self).__init__()
-        self.bn1 = nn.BatchNorm2d(inplanes)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.conv2 = conv3x3(planes, planes)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        residual = x
-
-        out = self.bn1(x)
-        out = self.relu(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(out)
-
-        out = self.conv1(out)
-
-        out = self.bn2(out)
-        out = self.relu(out)
-        out = self.conv2(out)
-
-        out += residual
-
-        return out
-
-
-class PreActBottleneck(nn.Module):
-    expansion = 4
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
-        super(PreActBottleneck, self).__init__()
-        self.bn1 = nn.BatchNorm2d(inplanes)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn3 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        residual = x
-
-        out = self.bn1(x)
-        out = self.relu(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(out)
-
-        out = self.conv1(out)
-
-        out = self.bn2(out)
-        out = self.relu(out)
-        out = self.conv2(out)
-
-        out = self.bn3(out)
-        out = self.relu(out)
-        out = self.conv3(out)
-
-        out += residual
-
-        return out
-
-
 class ResNet(nn.Module):
 
     def __init__(self, block, layers, stl10=False, num_classes=10):
@@ -197,70 +125,12 @@ class ResNet(nn.Module):
         return x
 
 
-class PreActResNet(nn.Module):
-
-    def __init__(self, block, layers, stl10=False, num_classes=10):
-        super(PreActResNet, self).__init__()
-        self.inplanes = 16
-        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
-        self.layer1 = self._make_layer(block, 16, layers[0])
-        self.layer2 = self._make_layer(block, 32, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
-        self.stl10 = stl10
-        if self.stl10:
-            self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
-        self.bn = nn.BatchNorm2d(64 * block.expansion)
-        self.relu = nn.ReLU(inplace=True)
-        self.avgpool = nn.AvgPool2d(8, stride=1)
-        self.fc = nn.Linear(64 * block.expansion, num_classes)
-
-    def _make_layer(self, block, planes, blocks, stride=1):
-        downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion, kernel_size=1, stride=stride, bias=False)
-            )
-
-        layers = [block(self.inplanes, planes, stride, downsample)]
-        self.inplanes = planes * block.expansion
-        for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes))
-        return nn.Sequential(*layers)
-
-    def forward(self, x):
-        x = self.conv1(x)
-
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        if self.stl10:
-            x = self.layer4(x)
-
-        x = self.bn(x)
-        x = self.relu(x)
-        x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc(x)
-
-        return x
-
-
 def resnet20(**kwargs):
     model = ResNet(BasicBlock, [3, 3, 3], **kwargs)
     return model
 
 
-def preact_resnet20(**kwargs):
-    model = PreActResNet(PreActBasicBlock, [3, 3, 3], **kwargs)
-    return model
-
-
 def resnet26_stl10(**kwargs):
     model = ResNet(BasicBlock, [3, 3, 3, 3], stl10=True, **kwargs)
-    return model
-
-
-def preact_resnet26_stl10(**kwargs):
-    model = PreActResNet(PreActBasicBlock, [3, 3, 3, 3], stl10=True, **kwargs)
     return model
 
