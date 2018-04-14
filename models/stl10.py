@@ -20,7 +20,7 @@ class STL10Net(nn.Module):
         self.features = nn.Sequential(*layers)
 
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=64, out_length=16, routing_type=routing_type,
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=128, out_length=16, routing_type=routing_type,
                                             num_iterations=num_iterations)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
@@ -33,7 +33,7 @@ class STL10Net(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 64)
+            out = out.contiguous().view(out.size(0), -1, 128)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
