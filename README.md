@@ -1,5 +1,5 @@
-# CapsuleTL
-Capsule Transfer Learning
+# SPCapsNet
+A PyTorch implementation of Shared Parameters Capsule Network based on NIPS2018 paper [Share parameters between capsules with k-means routing for image classification]()
 
 ## Requirements
 * [Anaconda](https://www.anaconda.com/download/)
