@@ -3,9 +3,7 @@ import argparse
 import cv2
 import numpy as np
 import torch
-import torch.nn.functional as F
 import torchvision.transforms as transforms
-from capsule_layer.functional import flaser
 from torch.autograd import Variable
 from torchvision.utils import save_image
 
@@ -20,7 +18,7 @@ if __name__ == '__main__':
 
     DATA_TYPE = opt.data_type
     MODEL_NAME = opt.model_name
-    model = models[DATA_TYPE]().eval()
+    model = models[DATA_TYPE](return_prob=True).eval()
 
     if torch.cuda.is_available():
         model.cuda()
@@ -47,15 +45,10 @@ if __name__ == '__main__':
         elif name == 'classifier':
             out = out.permute(0, 2, 3, 1)
             out = out.contiguous().view(out.size(0), -1, module.weight.size(-1))
-            priors = (module.weight[None, :, None, :, :] @ out[:, None, :, :, None]).squeeze(dim=-1)
-            output = priors.sum(dim=-2, keepdim=True) / priors.size(1)
-            for r in range(3):
-                logits = (priors * F.normalize(output, p=2, dim=-1)).sum(dim=-1, keepdim=True)
-                probs = F.softmax(logits, dim=1)
-                output = (probs * priors).sum(dim=-2, keepdim=True)
-            classes = flaser(output).squeeze(dim=-2).norm(dim=-1)
-            prob = (probs.squeeze(dim=-1) * classes.unsqueeze(dim=-1)).sum(dim=1)
-            prob = prob.contiguous().view(prob.size(0), *features.size()[-2:], -1)
+            out, probs = module(out)
+            classes = out.norm(dim=-1)
+            prob = (probs * classes.unsqueeze(dim=-1)).sum(dim=1)
+            prob = prob.view(prob.size(0), *features.size()[-2:], -1)
             prob = prob.permute(0, 3, 1, 2).sum(dim=1)
 
             heat_maps = []
