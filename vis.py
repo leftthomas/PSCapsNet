@@ -28,8 +28,8 @@ if __name__ == '__main__':
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
-    images, labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 16, True)))
-    save_image(images, filename='vis_%s_original.png' % DATA_TYPE, nrow=4, normalize=True)
+    images, labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8, True)))
+    save_image(images, filename='vis_%s_original.png' % DATA_TYPE, nrow=2, normalize=True)
     if torch.cuda.is_available():
         images = images.cuda()
     images = Variable(images)
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     for name, module in model.named_children():
         if name == 'conv1':
             out = module(images)
-            save_image(out.mean(dim=1, keepdim=True).data, filename='vis_%s_conv1.png' % DATA_TYPE, nrow=4,
+            save_image(out.mean(dim=1, keepdim=True).data, filename='vis_%s_conv1.png' % DATA_TYPE, nrow=2,
                        normalize=True)
         elif name == 'features':
             out = module(out)
@@ -54,10 +54,9 @@ if __name__ == '__main__':
                 probs = F.softmax(logits, dim=1)
                 output = (probs * priors).sum(dim=-2, keepdim=True)
             classes = flaser(output).squeeze(dim=-2).norm(dim=-1)
-            prob = (probs.expand(*probs.size()[:-1], module.weight.size(-1)) * classes.unsqueeze(dim=-1).unsqueeze(
-                dim=-1)).mean(dim=1)
+            prob = (probs.squeeze(dim=-1) * classes.unsqueeze(dim=-1)).sum(dim=1)
             prob = prob.contiguous().view(prob.size(0), *features.size()[-2:], -1)
-            prob = prob.permute(0, 3, 1, 2)
+            prob = prob.permute(0, 3, 1, 2).sum(dim=1)
 
             heat_maps = []
             for i in range(prob.size(0)):
@@ -65,8 +64,7 @@ if __name__ == '__main__':
                 img = img - np.min(img)
                 if np.max(img) != 0:
                     img = img / np.max(img)
-                mask = prob[i].mean(dim=0)
-                mask = cv2.resize(mask.data.cpu().numpy(), image_size)
+                mask = cv2.resize(prob[i].data.cpu().numpy(), image_size)
                 mask = mask - np.min(mask)
                 if np.max(mask) != 0:
                     mask = mask / np.max(mask)
@@ -77,4 +75,4 @@ if __name__ == '__main__':
                     cam = cam / np.max(cam)
                 heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
             heat_maps = torch.stack(heat_maps)
-            save_image(heat_maps, filename='vis_%s_features.png' % DATA_TYPE, nrow=4, normalize=True)
+            save_image(heat_maps, filename='vis_%s_features.png' % DATA_TYPE, nrow=2, normalize=True)
