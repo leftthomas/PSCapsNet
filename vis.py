@@ -1,6 +1,7 @@
 import argparse
 
 import torch
+from torch.autograd import Variable
 from torchvision.utils import save_image
 
 from utils import models, get_iterator
@@ -14,7 +15,7 @@ if __name__ == '__main__':
 
     DATA_TYPE = opt.data_type
     MODEL_NAME = opt.model_name
-    model = models[DATA_TYPE]()
+    model = models[DATA_TYPE]().eval()
 
     if torch.cuda.is_available():
         model.cuda()
@@ -23,6 +24,12 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
     images, labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 16, True)))
-    save_image(images, filename='vis_result.png', nrow=4, normalize=True)
+    save_image(images, filename='vis_original.png', nrow=4, normalize=True)
     if torch.cuda.is_available():
         images = images.cuda()
+    images = Variable(images)
+
+    for name, module in model.named_children():
+        if name != 'classifier':
+            images = module(images)
+            save_image(images.mean(dim=1, keepdim=True).data, filename='vis_%s.png' % name, nrow=4, normalize=True)
