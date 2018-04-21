@@ -30,7 +30,7 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
     images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, 8, True)))
-    save_image(images, filename='vis_%s_original.png' % DATA_TYPE, nrow=2, normalize=True)
+    save_image(images, filename='vis_%s_%s_original.png' % (DATA_TYPE, DATA_MODE), nrow=2, normalize=True)
     if torch.cuda.is_available():
         images = images.cuda()
     images = Variable(images)
@@ -39,8 +39,8 @@ if __name__ == '__main__':
     for name, module in model.named_children():
         if name == 'conv1':
             out = module(images)
-            save_image(out.mean(dim=1, keepdim=True).data, filename='vis_%s_conv1.png' % DATA_TYPE, nrow=2,
-                       normalize=True)
+            save_image(out.mean(dim=1, keepdim=True).data, filename='vis_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE),
+                       nrow=2, normalize=True)
         elif name == 'features':
             out = module(out)
             features = out
@@ -70,4 +70,4 @@ if __name__ == '__main__':
                     cam = cam / np.max(cam)
                 heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
             heat_maps = torch.stack(heat_maps)
-            save_image(heat_maps, filename='vis_%s_features.png' % DATA_TYPE, nrow=2)
+            save_image(heat_maps, filename='vis_%s_%s_features.png' % (DATA_TYPE, DATA_MODE), nrow=2)
