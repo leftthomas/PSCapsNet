@@ -10,12 +10,12 @@ from torchvision.utils import save_image
 from utils import models, get_iterator
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Visualize SP Capsule Network')
-    parser.add_argument('--data_type', default='CIFAR10', type=str,
+    parser = argparse.ArgumentParser(description='Visualize SP Capsule Network Focused Parts')
+    parser.add_argument('--data_type', default='STL10', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--data_mode', default='test_single', type=str,
                         choices=['test_single', 'test_multi'], help='visualized data mode')
-    parser.add_argument('--model_name', default='CIFAR10_Capsule_95.pth', type=str, help='model epoch name')
+    parser.add_argument('--model_name', default='STL10_Capsule_87.pth', type=str, help='model epoch name')
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
