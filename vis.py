@@ -33,7 +33,6 @@ if __name__ == '__main__':
     images = Variable(images)
     image_size = (images.size(-1), images.size(-2))
 
-    features = None
     for name, module in model.named_children():
         if name == 'conv1':
             out = module(images)
@@ -68,4 +67,4 @@ if __name__ == '__main__':
                     cam = cam / np.max(cam)
                 heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
             heat_maps = torch.stack(heat_maps)
-            save_image(heat_maps, filename='vis_%s_features.png' % DATA_TYPE, nrow=2, normalize=True)
+            save_image(heat_maps, filename='vis_%s_features.png' % DATA_TYPE, nrow=2)
