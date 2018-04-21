@@ -13,10 +13,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Visualize SP Capsule Network')
     parser.add_argument('--data_type', default='CIFAR10', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
+    parser.add_argument('--data_mode', default='test_single', type=str,
+                        choices=['test_single', 'test_multi'], help='visualized data mode')
     parser.add_argument('--model_name', default='CIFAR10_Capsule_95.pth', type=str, help='model epoch name')
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
+    DATA_MODE = opt.data_mode
     MODEL_NAME = opt.model_name
     model = models[DATA_TYPE](return_prob=True).eval()
 
@@ -26,7 +29,7 @@ if __name__ == '__main__':
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
-    images, labels = next(iter(get_iterator(DATA_TYPE, 'test_multi', 8, True)))
+    images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, 8, True)))
     save_image(images, filename='vis_%s_original.png' % DATA_TYPE, nrow=2, normalize=True)
     if torch.cuda.is_available():
         images = images.cuda()
@@ -46,6 +49,11 @@ if __name__ == '__main__':
             out = out.contiguous().view(out.size(0), -1, module.weight.size(-1))
             out, probs = module(out)
             classes = out.norm(dim=-1)
+            # top2_classes, top2_indexes = classes.topk(k=2, dim=-1)
+            # for batch in range(classes.size(0)):
+            #     for index in range(classes.size(-1)):
+            #         if index not in top2_indexes[batch].data.cpu().tolist():
+            #             classes[batch, index] = 0
             prob = (probs * classes.unsqueeze(dim=-1)).sum(dim=1)
             prob = prob.view(prob.size(0), *features.size()[-2:], -1)
             prob = prob.permute(0, 3, 1, 2).sum(dim=1)
