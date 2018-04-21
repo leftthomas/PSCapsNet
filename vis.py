@@ -22,6 +22,8 @@ if __name__ == '__main__':
     DATA_MODE = opt.data_mode
     MODEL_NAME = opt.model_name
     model = models[DATA_TYPE](return_prob=True).eval()
+    batch_size = 16 if DATA_MODE == 'test_single' else 8
+    nrow = 4 if DATA_MODE == 'test_single' else 2
 
     if torch.cuda.is_available():
         model.cuda()
@@ -29,8 +31,8 @@ if __name__ == '__main__':
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
-    images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, 8, True)))
-    save_image(images, filename='vis_%s_%s_original.png' % (DATA_TYPE, DATA_MODE), nrow=2, normalize=True)
+    images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, True)))
+    save_image(images, filename='vis_%s_%s_original.png' % (DATA_TYPE, DATA_MODE), nrow=nrow, normalize=True)
     if torch.cuda.is_available():
         images = images.cuda()
     images = Variable(images)
@@ -40,7 +42,7 @@ if __name__ == '__main__':
         if name == 'conv1':
             out = module(images)
             save_image(out.mean(dim=1, keepdim=True).data, filename='vis_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE),
-                       nrow=2, normalize=True)
+                       nrow=nrow, normalize=True)
         elif name == 'features':
             out = module(out)
             features = out
@@ -70,4 +72,4 @@ if __name__ == '__main__':
                     cam = cam / np.max(cam)
                 heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
             heat_maps = torch.stack(heat_maps)
-            save_image(heat_maps, filename='vis_%s_%s_features.png' % (DATA_TYPE, DATA_MODE), nrow=2)
+            save_image(heat_maps, filename='vis_%s_%s_features.png' % (DATA_TYPE, DATA_MODE), nrow=nrow)
