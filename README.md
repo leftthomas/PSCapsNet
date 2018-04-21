@@ -36,20 +36,12 @@ Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your b
 `$data_type` means the dataset type which you are training.
 
 ## Results
-The train loss、accuracy, test loss、accuracy, confusion matrix and ProbAM are showed.
+The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom.
 
 ### MNIST
 - Capsule
 
 ![result](results/capsule_mnist.png)
-
-- ProbAM
-
-| Name | Academy | score | 
-| - | :-: | -: | 
-| Harry Potter | Gryffindor| 90 | 
-| Hermione Granger | Gryffindor | 100 | 
-| Draco Malfoy | Slytherin | 90 |
 
 - CNN
 
@@ -90,3 +82,15 @@ The train loss、accuracy, test loss、accuracy, confusion matrix and ProbAM are
 - CNN
 
 ![result](results/cnn_stl10.png)
+
+
+### ProbAM 
+- Single label image
+
+| Original | Conv1 | Feature Map | 
+| :-: | :-: | :-: | 
+| ![result](results/vis_MNIST_test_single_original.png) | ![result](results/vis_MNIST_test_single_conv1.png)| ![result](results/vis_MNIST_test_single_features.png) | 
+| ![result](results/vis_FashionMNIST_test_single_original.png) | ![result](results/vis_FashionMNIST_test_single_conv1.png)| ![result](results/vis_FashionMNIST_test_single_features.png) | 
+| ![result](results/vis_SVHN_test_single_original.png) | ![result](results/vis_SVHN_test_single_conv1.png)| ![result](results/vis_SVHN_test_single_features.png) | 
+| ![result](results/vis_CIFAR10_test_single_original.png) | ![result](results/vis_CIFAR10_test_single_conv1.png)| ![result](results/vis_CIFAR10_test_single_features.png) | 
+| ![result](results/vis_STL10_test_single_original.png) | ![result](results/vis_STL10_test_single_conv1.png)| ![result](results/vis_STL10_test_single_features.png) | 
