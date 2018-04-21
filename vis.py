@@ -49,11 +49,6 @@ if __name__ == '__main__':
             out = out.contiguous().view(out.size(0), -1, module.weight.size(-1))
             out, probs = module(out)
             classes = out.norm(dim=-1)
-            # top2_classes, top2_indexes = classes.topk(k=2, dim=-1)
-            # for batch in range(classes.size(0)):
-            #     for index in range(classes.size(-1)):
-            #         if index not in top2_indexes[batch].data.cpu().tolist():
-            #             classes[batch, index] = 0
             prob = (probs * classes.unsqueeze(dim=-1)).sum(dim=1)
             prob = prob.view(prob.size(0), *features.size()[-2:], -1)
             prob = prob.permute(0, 3, 1, 2).sum(dim=1)
