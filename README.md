@@ -36,12 +36,20 @@ Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your b
 `$data_type` means the dataset type which you are training.
 
 ## Results
-The train loss、accuracy, test loss、accuracy, and confusion matrix are showed with visdom.
+The train loss、accuracy, test loss、accuracy, confusion matrix and ProbAM are showed.
 
 ### MNIST
 - Capsule
 
 ![result](results/capsule_mnist.png)
+
+- ProbAM
+
+| Name | Academy | score | 
+| - | :-: | -: | 
+| Harry Potter | Gryffindor| 90 | 
+| Hermione Granger | Gryffindor | 100 | 
+| Draco Malfoy | Slytherin | 90 |
 
 - CNN
 
