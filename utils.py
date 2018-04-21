@@ -57,7 +57,7 @@ class MarginLoss(nn.Module):
         return loss.sum(dim=-1).mean()
 
 
-def get_iterator(data_type, mode, batch_size=50, use_data_augmentation=False):
+def get_iterator(data_type, mode, batch_size=50, use_data_augmentation=False, shuffle=True):
     if use_data_augmentation:
         transform_train = transform_trains[data_type]
         transform_test = transforms.Compose([
@@ -73,7 +73,7 @@ def get_iterator(data_type, mode, batch_size=50, use_data_augmentation=False):
         ])
     data = data_set[data_type](root='data/' + data_type, mode=mode,
                                transform=transform_train if mode == 'train' else transform_test, download=True)
-    return DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4)
+    return DataLoader(dataset=data, batch_size=batch_size, shuffle=shuffle, num_workers=4)
 
 
 class MultiClassAccuracyMeter(Meter):
