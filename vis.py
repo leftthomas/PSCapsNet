@@ -31,7 +31,7 @@ if __name__ == '__main__':
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
-    images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, True)))
+    images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, False)))
     save_image(images, filename='vis_%s_%s_original.png' % (DATA_TYPE, DATA_MODE), nrow=nrow, normalize=True)
     if torch.cuda.is_available():
         images = images.cuda()
