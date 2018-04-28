@@ -47,6 +47,13 @@ optional arguments:
 ```
 Generated ProbAM results are on the same directory with `README.md`.
 
+### Generate figures
+```
+python gen_figures.py --csv_name experiment_2_FashionMNIST.csv 
+optional arguments:
+--csv_name                 csv file name [default value is 'experiment_1_iter_3.csv'](choices:['experiment_1_iter_3.csv', 'experiment_1_iter_10.csv', 'experiment_2_CIFAR10.csv', 'experiment_2_FashionMNIST.csv', 'experiment_2_MNIST.csv', 'experiment_2_STL10.csv', 'experiment_2_SVHN.csv', 'experiment_3_CIFAR10.csv', 'experiment_3_FashionMNIST.csv', 'experiment_3_MNIST.csv', 'experiment_3_STL10.csv', 'experiment_3_SVHN.csv'])
+```
+
 ## Results
 The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom.
 
