@@ -1,4 +1,4 @@
-epoch,dynamic-TA,dynamic-TCA,dynamic-SA,k-means-TA,k-means-TCA,k-means-SA
+Epoch,dynamic-TA,dynamic-TCA,dynamic-SA,k-means-TA,k-means-TCA,k-means-SA
 1,55.1210842,55.1210842,98.37,70.91757387,70.7953788,98.5
 2,67.11841813,67.09620084,98.92,74.7389469,74.69451233,98.97
 3,71.17307265,71.16196401,99.11,87.10286603,87.0695401,99.08
