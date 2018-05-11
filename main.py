@@ -109,7 +109,7 @@ def on_end_epoch(state):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Train Classfication')
+    parser = argparse.ArgumentParser(description='Train Classification')
     parser.add_argument('--data_type', default='MNIST', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--net_mode', default='Capsule', type=str, choices=['Capsule', 'CNN'], help='network mode')
