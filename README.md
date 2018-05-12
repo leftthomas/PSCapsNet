@@ -1,5 +1,5 @@
 # PSCapsNet
-A PyTorch implementation of Parameter-sharing Capsule Network based on NIPS2018 paper [Parameter-sharing capsule with k-means routing]()
+A PyTorch implementation of Parameter-sharing Capsule Network based on NIPS 2018 paper [Parameter-sharing capsule with k-means routing]().
 
 ## Requirements
 * [Anaconda](https://www.anaconda.com/download/)
