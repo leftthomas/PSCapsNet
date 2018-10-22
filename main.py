@@ -3,7 +3,6 @@ import argparse
 import pandas as pd
 import torch
 import torchnet as tnt
-from torch.autograd import Variable
 from torch.optim import Adam
 from torchnet.engine import Engine
 from torchnet.logger import VisdomPlotLogger, VisdomLogger
@@ -19,10 +18,7 @@ def processor(sample):
         labels = torch.eye(CLASSES).index_select(dim=0, index=labels)
 
     if torch.cuda.is_available():
-        data = data.cuda()
-        labels = labels.cuda()
-    data = Variable(data)
-    labels = Variable(labels)
+        data, labels = data.to('cuda'), labels.to('cuda')
 
     model.train(training)
 
@@ -49,11 +45,11 @@ def reset_meters():
 def on_forward(state):
     # test multi
     if state['sample'][1].dim() == 2:
-        meter_multi_accuracy.add(state['output'].data, state['sample'][1])
+        meter_multi_accuracy.add(state['output'], state['sample'][1])
     else:
-        meter_accuracy.add(state['output'].data, state['sample'][1])
-        meter_confusion.add(state['output'].data, state['sample'][1])
-        meter_loss.add(state['loss'].data[0])
+        meter_accuracy.add(state['output'], state['sample'][1])
+        meter_confusion.add(state['output'], state['sample'][1])
+        meter_loss.add(state['loss'].item())
 
 
 def on_start_epoch(state):
@@ -83,7 +79,6 @@ def on_end_epoch(state):
         state['epoch'], meter_loss.value()[0], meter_accuracy.value()[0]))
 
     # test multi
-    reset_meters()
     engine.test(processor, get_iterator(DATA_TYPE, 'test_multi', BATCH_SIZE, USE_DA))
     test_multi_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value()[0])
     test_multi_confidence_accuracy_logger.log(state['epoch'], meter_multi_accuracy.value()[1])
@@ -92,8 +87,11 @@ def on_end_epoch(state):
     print('[Epoch %d] Testing Multi Accuracy: %.2f%% Testing Multi Confidence Accuracy: %.2f%%' % (
         state['epoch'], meter_multi_accuracy.value()[0], meter_multi_accuracy.value()[1]))
 
-    # save model
-    torch.save(model.state_dict(), 'epochs/%s_%s_%d.pth' % (DATA_TYPE, NET_MODE, state['epoch']))
+    # save best model
+    global best_acc
+    if meter_accuracy.value()[0] > best_acc:
+        torch.save(model.state_dict(), 'epochs/%s_%s.pth' % (DATA_TYPE, NET_MODE))
+        best_acc = meter_accuracy.value()[0]
     # save statistics at every 10 epochs
     if state['epoch'] % 10 == 0:
         out_path = 'statistics/'
@@ -139,12 +137,14 @@ if __name__ == '__main__':
     model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS)
     loss_criterion = MarginLoss()
     if torch.cuda.is_available():
-        model.cuda()
-        loss_criterion.cuda()
+        model = model.to('cuda')
 
     print("# parameters:", sum(param.numel() for param in model.parameters()))
 
     optimizer = Adam(model.parameters())
+
+    # record current best test accuracy
+    best_acc = 0
 
     engine = Engine()
     meter_loss = tnt.meter.AverageValueMeter()

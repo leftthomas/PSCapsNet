@@ -110,7 +110,7 @@ class MNIST(data.Dataset):
         with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
             torch.save(test_single_set, f)
 
-        # generate multi dataset
+        # generate multi dataset (each sample contains 4 images)
         x_test, y_test = test_data, test_labels
         idx = list(range(len(x_test)))
         np.random.shuffle(idx)
