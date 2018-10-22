@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms as transforms
-from torch.autograd import Variable
 from torchvision.utils import save_image
 
 from utils import models, get_iterator
@@ -15,18 +14,18 @@ if __name__ == '__main__':
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--data_mode', default='test_single', type=str,
                         choices=['test_single', 'test_multi'], help='visualized data mode')
-    parser.add_argument('--model_name', default='STL10_Capsule_87.pth', type=str, help='model epoch name')
+    parser.add_argument('--model_name', default='STL10_Capsule.pth', type=str, help='model name')
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
     DATA_MODE = opt.data_mode
     MODEL_NAME = opt.model_name
     model = models[DATA_TYPE](return_prob=True).eval()
-    batch_size = 16 if DATA_MODE == 'test_single' else 8
-    nrow = 4 if DATA_MODE == 'test_single' else 2
+    batch_size = 16
+    nrow = 4
 
     if torch.cuda.is_available():
-        model.cuda()
+        model = model.to('cuda')
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME))
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
@@ -34,8 +33,7 @@ if __name__ == '__main__':
     images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, False)))
     save_image(images, filename='vis_%s_%s_original.png' % (DATA_TYPE, DATA_MODE), nrow=nrow, normalize=True)
     if torch.cuda.is_available():
-        images = images.cuda()
-    images = Variable(images)
+        images = images.to('cuda')
     image_size = (images.size(-1), images.size(-2))
 
     for name, module in model.named_children():
@@ -57,11 +55,11 @@ if __name__ == '__main__':
 
             heat_maps = []
             for i in range(prob.size(0)):
-                img = images[i].data.cpu().numpy()
+                img = images[i].cpu().numpy()
                 img = img - np.min(img)
                 if np.max(img) != 0:
                     img = img / np.max(img)
-                mask = cv2.resize(prob[i].data.cpu().numpy(), image_size)
+                mask = cv2.resize(prob[i].cpu().numpy(), image_size)
                 mask = mask - np.min(mask)
                 if np.max(mask) != 0:
                     mask = mask / np.max(mask)

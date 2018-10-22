@@ -1,5 +1,5 @@
 # PSCapsNet
-A PyTorch implementation of Parameter-sharing Capsule Network based on NIPS 2018 paper [Parameter-sharing capsule with k-means routing]().
+A PyTorch implementation of Parameter-sharing Capsule Network based on the paper [Parameter-sharing capsule with k-means routing]().
 
 ## Requirements
 * [Anaconda](https://www.anaconda.com/download/)
@@ -14,10 +14,6 @@ pip install git+https://github.com/pytorch/tnt.git@master
 * capsule-layer
 ```
 pip install git+https://github.com/leftthomas/CapsuleLayer.git@master
-```
-* tqdm
-```
-conda install tqdm
 ```
 
 ## Usage
@@ -43,7 +39,7 @@ python vis.py --data_type CIFAR10
 optional arguments:
 --data_type                dataset type [default value is 'STL10'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'])
 --data_mode                visualized data mode [default value is 'test_single'](choices:['test_single', 'test_multi'])
---model_name               model epoch name [default value is 'STL10_Capsule_87.pth']
+--model_name               model epoch name [default value is 'STL10_Capsule.pth']
 ```
 Generated ProbAM results are on the same directory with `README.md`.
 
