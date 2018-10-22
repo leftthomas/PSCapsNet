@@ -92,8 +92,9 @@ class MultiClassAccuracyMeter(Meter):
             output = output.cpu().numpy()
         if torch.is_tensor(target):
             target = target.cpu().numpy()
-        greater = np.sort(output, axis=1)[:, -2] > 0.5
-        output = output.argsort()[:, -2:]
+        # return the top 4 results
+        greater = np.sort(output, axis=1)[:, -4] > 0.5
+        output = output.argsort()[:, -4:]
         output.sort(axis=1)
         self.sum += 1. * (np.prod(output == target, axis=1)).sum()
         self.confidence_sum += 1. * (np.prod(output == target, axis=1) * greater).sum()
