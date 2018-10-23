@@ -31,7 +31,8 @@ optional arguments:
 --num_epochs               train epochs number [default value is 100]
 ```
 Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your browser, 
-`$data_type` means the dataset type which you are training.
+`$data_type` means the dataset type which you are training. If you want to interrupt 
+this process, just type `ps aux | grep visdom` to find the `PID`, then `kill -9 PID`.
 
 ### ProbAM visualization
 ```
