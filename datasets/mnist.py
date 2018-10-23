@@ -2,7 +2,6 @@ import codecs
 import errno
 import os
 import os.path
-import random
 
 import numpy as np
 import torch
@@ -113,22 +112,15 @@ class MNIST(data.Dataset):
         with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
             torch.save(test_single_set, f)
 
-        # generate multi dataset with same number samples as single dataset(each sample contains 2 images)
+        # generate multi dataset (each sample contains 2 images)
         x_test, y_test = test_data, test_labels
-        x_images, y_labels = [], []
-        for index in range(len(x_test)):
-            choices = [index]
-            while index in choices:
-                choices = random.sample(list(range(len(x_test))), 1)
-            choices.append(index)
-            whole_image = np.concatenate([x_test[choices[0]], x_test[choices[1]]], 1)
-            whole_label = np.array([y_test[choices[0]], y_test[choices[1]]])
-            # just compare the labels, don't compare the order
-            whole_label.sort()
-            x_images.append(whole_image)
-            y_labels.append(whole_label)
-
-        x_test, y_test = np.array(x_images), np.array(y_labels)
+        idx = list(range(len(x_test)))
+        np.random.shuffle(idx)
+        x_test, y_test = np.concatenate([x_test, x_test[idx]], 2), np.vstack([y_test, y_test[idx]]).T
+        # make sure the two number is different
+        x_test, y_test = x_test[y_test[:, 0] != y_test[:, 1]], y_test[y_test[:, 0] != y_test[:, 1]]
+        # just compare the labels, don't compare the order
+        y_test.sort(axis=1)
         test_multi_set = (torch.from_numpy(x_test), torch.from_numpy(y_test))
         with open(os.path.join(self.root, self.processed_folder, self.test_multi_file), 'wb') as f:
             torch.save(test_multi_set, f)
