@@ -111,18 +111,16 @@ class MNIST(data.Dataset):
         with open(os.path.join(self.root, self.processed_folder, self.test_single_file), 'wb') as f:
             torch.save(test_single_set, f)
 
-        # generate multi dataset with same number samples as single dataset(each sample contains 4 images)
+        # generate multi dataset with same number samples as single dataset(each sample contains 2 images)
         x_test, y_test = test_data, test_labels
         x_images, y_labels = [], []
         for index in range(len(x_test)):
             choices = [index]
             while index in choices:
-                choices = random.sample(list(range(len(x_test))), 3)
+                choices = random.sample(list(range(len(x_test))), 1)
             choices.append(index)
-            left_half_image = np.concatenate([x_test[choices[0]], x_test[choices[1]]], 0)
-            right_half_image = np.concatenate([x_test[choices[2]], x_test[choices[3]]], 0)
-            whole_image = np.concatenate([left_half_image, right_half_image], 1)
-            whole_label = np.array([y_test[choices[0]], y_test[choices[1]], y_test[choices[2]], y_test[choices[3]]])
+            whole_image = np.concatenate([x_test[choices[0]], x_test[choices[1]]], 0)
+            whole_label = np.array([y_test[choices[0]], y_test[choices[1]]])
             # just compare the labels, don't compare the order
             whole_label.sort()
             x_images.append(whole_image)

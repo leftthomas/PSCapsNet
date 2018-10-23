@@ -21,8 +21,8 @@ if __name__ == '__main__':
     DATA_MODE = opt.data_mode
     MODEL_NAME = opt.model_name
     model = models[DATA_TYPE](return_prob=True).eval()
-    batch_size = 16
-    nrow = 4
+    batch_size = 16 if DATA_MODE == 'test_single' else 8
+    nrow = 4 if DATA_MODE == 'test_single' else 2
 
     if torch.cuda.is_available():
         model = model.to('cuda')
