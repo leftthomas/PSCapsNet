@@ -1,4 +1,4 @@
-import torch.nn.functional as F
+import torch
 from capsule_layer import CapsuleLinear
 from torch import nn
 
@@ -40,5 +40,5 @@ class SVHNNet(nn.Module):
             out = self.pool(out)
             out = out.view(out.size(0), -1)
             out = self.classifier(out)
-            classes = F.sigmoid(out)
+            classes = torch.sigmoid(out)
         return classes
