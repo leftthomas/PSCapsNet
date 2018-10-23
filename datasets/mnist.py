@@ -119,7 +119,7 @@ class MNIST(data.Dataset):
             while index in choices:
                 choices = random.sample(list(range(len(x_test))), 1)
             choices.append(index)
-            whole_image = np.concatenate([x_test[choices[0]], x_test[choices[1]]], 0)
+            whole_image = np.concatenate([x_test[choices[0]], x_test[choices[1]]], 1)
             whole_label = np.array([y_test[choices[0]], y_test[choices[1]]])
             # just compare the labels, don't compare the order
             whole_label.sort()
