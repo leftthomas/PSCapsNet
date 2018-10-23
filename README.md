@@ -109,7 +109,7 @@ The train loss、accuracy, test loss、accuracy and confusion matrix are showed 
 | ![result](results/vis_CIFAR10_test_single_original.png) | ![result](results/vis_CIFAR10_test_single_conv1.png)| ![result](results/vis_CIFAR10_test_single_features.png) | 
 | ![result](results/vis_STL10_test_single_original.png) | ![result](results/vis_STL10_test_single_conv1.png)| ![result](results/vis_STL10_test_single_features.png) | 
 
-- Two-label image
+- Multi-label image
 
 | Original | Conv1 | Feature Map | 
 | :-: | :-: | :-: | 
