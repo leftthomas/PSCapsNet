@@ -122,8 +122,6 @@ class MNIST(data.Dataset):
             left_half_image = np.concatenate([x_test[choices[0]], x_test[choices[1]]], 0)
             right_half_image = np.concatenate([x_test[choices[2]], x_test[choices[3]]], 0)
             whole_image = np.concatenate([left_half_image, right_half_image], 1)
-            # make sure the multi label test sample to be the same size as the single label test sample
-            whole_image = np.array(Image.fromarray(whole_image).resize((x_test[0].shape[1], x_test[0].shape[0])))
             whole_label = np.array([y_test[choices[0]], y_test[choices[1]], y_test[choices[2]], y_test[choices[3]]])
             # just compare the labels, don't compare the order
             whole_label.sort()
