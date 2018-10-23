@@ -45,10 +45,10 @@ def reset_meters():
 def on_forward(state):
     # test multi
     if state['sample'][1].dim() == 2:
-        meter_multi_accuracy.add(state['output'], state['sample'][1])
+        meter_multi_accuracy.add(state['output'].detach(), state['sample'][1])
     else:
-        meter_accuracy.add(state['output'], state['sample'][1])
-        meter_confusion.add(state['output'], state['sample'][1])
+        meter_accuracy.add(state['output'].detach(), state['sample'][1])
+        meter_confusion.add(state['output'].detach(), state['sample'][1])
         meter_loss.add(state['loss'].item())
 
 

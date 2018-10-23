@@ -39,7 +39,7 @@ if __name__ == '__main__':
     for name, module in model.named_children():
         if name == 'conv1':
             out = module(images)
-            save_image(out.mean(dim=1, keepdim=True).data, filename='vis_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE),
+            save_image(out.mean(dim=1, keepdim=True), filename='vis_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE),
                        nrow=nrow, normalize=True)
         elif name == 'features':
             out = module(out)
