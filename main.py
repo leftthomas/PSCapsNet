@@ -139,7 +139,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         model = model.to('cuda')
 
-    print("# parameters:", sum(param.numel() for param in model.parameters()))
+    print("# model parameters:", sum(param.numel() for param in model.parameters()))
 
     optimizer = Adam(model.parameters())
 
