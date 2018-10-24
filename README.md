@@ -16,6 +16,14 @@ pip install git+https://github.com/pytorch/tnt.git@master
 pip install git+https://github.com/leftthomas/CapsuleLayer.git@master
 ```
 
+## Datasets
+We have uploaded the datasets into [BaiduYun](https://pan.baidu.com/s/1El-gfQUsCSk1Rllp6F0gqw) and 
+[GoogleDrive](https://drive.google.com/open?id=1drHvobmckZvul60tnrpFhvdwlPUd_DcS). 
+
+You needn't download the datasets by yourself, the code will download them automatically.
+If you encounter network issues, you can download all the datasets from the aforementioned cloud storage webs, 
+and extract them into `data` directory.
+
 ## Usage
 
 ### Train model
