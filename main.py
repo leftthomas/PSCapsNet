@@ -15,7 +15,7 @@ def processor(sample):
     data, labels, training = sample
     old_labels = labels
     if labels.dim() != 2:
-        labels = torch.eye(CLASSES).index_select(dim=0, index=labels)
+        labels = torch.eye(CLASSES).index_select(dim=0, index=torch.tensor(labels, dtype=torch.long))
 
     if torch.cuda.is_available():
         data, labels = data.to('cuda'), labels.to('cuda')
