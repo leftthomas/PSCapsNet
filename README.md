@@ -40,7 +40,7 @@ optional arguments:
 ```
 Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your browser, 
 `$data_type` means the dataset type which you are training. If you want to interrupt 
-this process, just type `ps aux | grep visdom` to find the `PID`, then `kill -9 PID`.
+this process, just type `ps aux | grep visdom` to find the `PID`, then `kill PID`.
 
 ### ProbAM visualization
 ```
