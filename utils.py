@@ -1,4 +1,8 @@
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
@@ -7,7 +11,6 @@ from torch.utils.data import DataLoader
 from torchnet.meter.meter import Meter
 
 from datasets import CIFAR10, MNIST, FashionMNIST, STL10, SVHN
-from models import CIFAR10Net, FashionMNISTNet, MNISTNet, STL10Net, SVHNNet
 
 CLASS_NAME = {
     'MNIST': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
@@ -19,7 +22,6 @@ CLASS_NAME = {
 }
 
 data_set = {'MNIST': MNIST, 'FashionMNIST': FashionMNIST, 'SVHN': SVHN, 'CIFAR10': CIFAR10, 'STL10': STL10}
-models = {'MNIST': MNISTNet, 'FashionMNIST': FashionMNISTNet, 'SVHN': SVHNNet, 'CIFAR10': CIFAR10Net, 'STL10': STL10Net}
 
 transform_value = {
     'MNIST': transforms.Normalize((0.1307,), (0.3081,)),
@@ -101,3 +103,13 @@ class MultiClassAccuracyMeter(Meter):
 
     def value(self):
         return (float(self.sum) / self.n) * 100.0, (float(self.confidence_sum) / self.n) * 100.0
+
+
+if __name__ == '__main__':
+
+    for file_name in os.listdir('statistics/'):
+        if os.path.splitext(file_name)[1] == '.csv':
+            data = pd.read_csv('statistics/' + file_name)
+            ax = data.plot(x='Epoch')
+            ax.set_ylabel('Accuracy')
+            plt.savefig(file_name.split('.')[0] + '.pdf')

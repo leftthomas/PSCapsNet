@@ -33,7 +33,7 @@ class BasicBlock(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, stl10=False, num_classes=10):
+    def __init__(self, block, layers, num_classes=10):
         super(ResNet, self).__init__()
         self.inplanes = 16
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -42,10 +42,8 @@ class ResNet(nn.Module):
         self.layer1 = self._make_layer(block, 16, layers[0])
         self.layer2 = self._make_layer(block, 32, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
-        self.stl10 = stl10
-        if self.stl10:
-            self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
-        self.avgpool = nn.AvgPool2d(8)
+        self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
+        self.pool = nn.AdaptiveAvgPool2d(output_size=(3, 3))
         self.fc = nn.Linear(64, num_classes)
 
     def _make_layer(self, block, planes, blocks, stride=1):
@@ -71,22 +69,16 @@ class ResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        if self.stl10:
-            x = self.layer4(x)
+        x = self.layer4(x)
 
-        x = self.avgpool(x)
+        x = self.pool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
         return x
 
 
-def resnet20(**kwargs):
-    model = ResNet(BasicBlock, [3, 3, 3], **kwargs)
-    return model
-
-
-def resnet26_stl10(**kwargs):
-    model = ResNet(BasicBlock, [3, 3, 3, 3], stl10=True, **kwargs)
+def resnet26(**kwargs):
+    model = ResNet(BasicBlock, [3, 3, 3, 3], **kwargs)
     return model
 

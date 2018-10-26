@@ -6,10 +6,11 @@ import torch
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
 
-from utils import models, get_iterator
+from model import MixNet
+from utils import get_iterator
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Visualize SP Capsule Network Focused Parts')
+    parser = argparse.ArgumentParser(description='Visualize Capsule Network Focused Parts')
     parser.add_argument('--data_type', default='STL10', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--data_mode', default='test_single', type=str,
@@ -20,7 +21,7 @@ if __name__ == '__main__':
     DATA_TYPE = opt.data_type
     DATA_MODE = opt.data_mode
     MODEL_NAME = opt.model_name
-    model = models[DATA_TYPE](return_prob=True).eval()
+    model = MixNet(data_type=DATA_TYPE, return_prob=True).eval()
     batch_size = 16 if DATA_MODE == 'test_single' else 8
     nrow = 4 if DATA_MODE == 'test_single' else 2
 

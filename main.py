@@ -8,7 +8,8 @@ from torchnet.engine import Engine
 from torchnet.logger import VisdomPlotLogger, VisdomLogger
 from tqdm import tqdm
 
-from utils import get_iterator, CLASS_NAME, models, MultiClassAccuracyMeter, MarginLoss
+from model import MixNet
+from utils import get_iterator, CLASS_NAME, MultiClassAccuracyMeter, MarginLoss
 
 
 def processor(sample):
@@ -134,7 +135,7 @@ if __name__ == '__main__':
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
 
-    model = models[DATA_TYPE](NET_MODE, ROUTING_TYPE, NUM_ITERATIONS)
+    model = MixNet(DATA_TYPE, NET_MODE, ROUTING_TYPE, NUM_ITERATIONS)
     loss_criterion = MarginLoss()
     if torch.cuda.is_available():
         model = model.to('cuda')

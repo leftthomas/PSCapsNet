@@ -2,36 +2,34 @@ import torch
 from capsule_layer import CapsuleLinear
 from torch import nn
 
-from resnet import resnet20
+from resnet import resnet26
 
 
-class MNISTNet(nn.Module):
-    def __init__(self, net_mode='Capsule', routing_type='k_means', num_iterations=3, **kwargs):
-        super(MNISTNet, self).__init__()
+class MixNet(nn.Module):
+    def __init__(self, data_type='MNIST', net_mode='Capsule', routing_type='k_means', num_iterations=3, **kwargs):
+        super(MixNet, self).__init__()
 
         self.net_mode = net_mode
-        self.conv1 = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, padding=1, bias=False))
-
+        if data_type == 'MNIST' or data_type == 'FashionMNIST':
+            self.conv1 = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, padding=1, bias=False))
+        else:
+            self.conv1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=3, padding=1, bias=False))
         layers = []
-        for name, module in resnet20().named_children():
-            if name == 'conv1' or isinstance(module, nn.AvgPool2d) or isinstance(module, nn.Linear):
+        for name, module in resnet26().named_children():
+            if name == 'conv1' or isinstance(module, nn.Linear):
                 continue
             layers.append(module)
         self.features = nn.Sequential(*layers)
-
         if self.net_mode == 'Capsule':
-            self.pool = nn.AvgPool2d(kernel_size=4)
             self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type=routing_type,
                                             num_iterations=num_iterations, **kwargs)
         else:
-            self.pool = nn.AdaptiveAvgPool2d(output_size=1)
-            self.classifier = nn.Sequential(nn.Linear(in_features=64, out_features=64), nn.ReLU(),
-                                            nn.Linear(in_features=64, out_features=10))
+            self.classifier = nn.Sequential(nn.Linear(in_features=576, out_features=128), nn.ReLU(),
+                                            nn.Linear(in_features=128, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
         out = self.features(out)
-        out = self.pool(out)
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)

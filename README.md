@@ -54,7 +54,7 @@ Generated ProbAM results are on the same directory with `README.md`.
 
 ### Generate figures
 ```
-python gen_figures.py
+python utils.py
 ```
 Generated figures are on the same directory with `README.md`.
 
