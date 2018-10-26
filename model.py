@@ -6,7 +6,8 @@ from resnet import resnet26
 
 
 class MixNet(nn.Module):
-    def __init__(self, data_type='MNIST', net_mode='Capsule', routing_type='k_means', num_iterations=3, **kwargs):
+    def __init__(self, data_type='MNIST', net_mode='Capsule', capsule_type='ps', routing_type='k_means',
+                 num_iterations=3, **kwargs):
         super(MixNet, self).__init__()
 
         self.net_mode = net_mode
@@ -21,8 +22,13 @@ class MixNet(nn.Module):
             layers.append(module)
         self.features = nn.Sequential(*layers)
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type=routing_type,
-                                            num_iterations=num_iterations, **kwargs)
+            if capsule_type == 'ps':
+                self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type=routing_type,
+                                                num_iterations=num_iterations, **kwargs)
+            else:
+                self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, in_capsules=72,
+                                                share_weight=False, routing_type=routing_type,
+                                                num_iterations=num_iterations, **kwargs)
         else:
             self.classifier = nn.Sequential(nn.Linear(in_features=576, out_features=128), nn.ReLU(),
                                             nn.Linear(in_features=128, out_features=10))

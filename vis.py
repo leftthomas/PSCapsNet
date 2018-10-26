@@ -15,13 +15,22 @@ if __name__ == '__main__':
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--data_mode', default='test_single', type=str,
                         choices=['test_single', 'test_multi'], help='visualized data mode')
-    parser.add_argument('--model_name', default='STL10_Capsule.pth', type=str, help='model name')
+    parser.add_argument('--capsule_type', default='ps', type=str, choices=['ps', 'fc'],
+                        help='capsule network type')
+    parser.add_argument('--routing_type', default='k_means', type=str, choices=['k_means', 'dynamic'],
+                        help='routing type')
+    parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
+    parser.add_argument('--model_name', default='STL10_Capsule_ps.pth', type=str, help='model name')
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
     DATA_MODE = opt.data_mode
+    CAPSULE_TYPE = opt.capsule_type
+    ROUTING_TYPE = opt.routing_type
+    NUM_ITERATIONS = opt.num_iterations
     MODEL_NAME = opt.model_name
-    model = MixNet(data_type=DATA_TYPE, return_prob=True).eval()
+    model = MixNet(data_type=DATA_TYPE, capsule_type=CAPSULE_TYPE, routing_type=ROUTING_TYPE,
+                   num_iterations=NUM_ITERATIONS, return_prob=True).eval()
     batch_size = 16 if DATA_MODE == 'test_single' else 8
     nrow = 4 if DATA_MODE == 'test_single' else 2
 
@@ -32,7 +41,8 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
 
     images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, False)))
-    save_image(images, filename='vis_%s_%s_original.png' % (DATA_TYPE, DATA_MODE), nrow=nrow, normalize=True)
+    save_image(images, filename='vis_%s_%s_%s_original.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE), nrow=nrow,
+               normalize=True)
     if torch.cuda.is_available():
         images = images.to('cuda')
     image_size = (images.size(-1), images.size(-2))
@@ -40,8 +50,9 @@ if __name__ == '__main__':
     for name, module in model.named_children():
         if name == 'conv1':
             out = module(images)
-            save_image(out.mean(dim=1, keepdim=True), filename='vis_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE),
-                       nrow=nrow, normalize=True)
+            save_image(out.mean(dim=1, keepdim=True),
+                       filename='vis_%s_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE), nrow=nrow,
+                       normalize=True)
         elif name == 'features':
             out = module(out)
             features = out
@@ -71,4 +82,5 @@ if __name__ == '__main__':
                     cam = cam / np.max(cam)
                 heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
             heat_maps = torch.stack(heat_maps)
-            save_image(heat_maps, filename='vis_%s_%s_features.png' % (DATA_TYPE, DATA_MODE), nrow=nrow)
+            save_image(heat_maps, filename='vis_%s_%s_%s_features.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE),
+                       nrow=nrow)

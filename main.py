@@ -91,7 +91,10 @@ def on_end_epoch(state):
     # save best model
     global best_acc
     if meter_accuracy.value()[0] > best_acc:
-        torch.save(model.state_dict(), 'epochs/%s_%s.pth' % (DATA_TYPE, NET_MODE))
+        if NET_MODE == 'Capsule':
+            torch.save(model.state_dict(), 'epochs/%s_%s_%s.pth' % (DATA_TYPE, NET_MODE, CAPSULE_TYPE))
+        else:
+            torch.save(model.state_dict(), 'epochs/%s_%s.pth' % (DATA_TYPE, NET_MODE))
         best_acc = meter_accuracy.value()[0]
     # save statistics at every 10 epochs
     if state['epoch'] % 10 == 0:
@@ -103,7 +106,11 @@ def on_end_epoch(state):
                   'test_multi_accuracy': results['test_multi_accuracy'],
                   'test_multi_confidence_accuracy': results['test_multi_confidence_accuracy']},
             index=range(1, state['epoch'] + 1))
-        data_frame.to_csv(out_path + DATA_TYPE + '_' + NET_MODE + '_results.csv', index_label='epoch')
+        if NET_MODE == 'Capsule':
+            data_frame.to_csv(out_path + DATA_TYPE + '_' + NET_MODE + '_' + CAPSULE_TYPE + '_results.csv',
+                              index_label='epoch')
+        else:
+            data_frame.to_csv(out_path + DATA_TYPE + '_' + NET_MODE + '_results.csv', index_label='epoch')
 
 
 if __name__ == '__main__':
@@ -112,22 +119,25 @@ if __name__ == '__main__':
     parser.add_argument('--data_type', default='MNIST', type=str,
                         choices=['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'], help='dataset type')
     parser.add_argument('--net_mode', default='Capsule', type=str, choices=['Capsule', 'CNN'], help='network mode')
-    parser.add_argument('--use_da', action='store_true', help='use data augmentation or not')
+    parser.add_argument('--capsule_type', default='ps', type=str, choices=['ps', 'fc'],
+                        help='capsule network type')
     parser.add_argument('--routing_type', default='k_means', type=str, choices=['k_means', 'dynamic'],
                         help='routing type')
     parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
     parser.add_argument('--batch_size', default=30, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=100, type=int, help='train epochs number')
+    parser.add_argument('--use_da', action='store_true', help='use data augmentation or not')
 
     opt = parser.parse_args()
 
     DATA_TYPE = opt.data_type
     NET_MODE = opt.net_mode
-    USE_DA = opt.use_da
+    CAPSULE_TYPE = opt.capsule_type
     ROUTING_TYPE = opt.routing_type
     NUM_ITERATIONS = opt.num_iterations
     BATCH_SIZE = opt.batch_size
     NUM_EPOCHS = opt.num_epochs
+    USE_DA = opt.use_da
 
     results = {'train_loss': [], 'train_accuracy': [], 'test_single_loss': [], 'test_single_accuracy': [],
                'test_multi_accuracy': [], 'test_multi_confidence_accuracy': []}
@@ -135,7 +145,7 @@ if __name__ == '__main__':
     class_name = CLASS_NAME[DATA_TYPE]
     CLASSES = 10
 
-    model = MixNet(DATA_TYPE, NET_MODE, ROUTING_TYPE, NUM_ITERATIONS)
+    model = MixNet(DATA_TYPE, NET_MODE, CAPSULE_TYPE, ROUTING_TYPE, NUM_ITERATIONS)
     loss_criterion = MarginLoss()
     if torch.cuda.is_available():
         model = model.to('cuda')

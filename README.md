@@ -32,11 +32,12 @@ python -m visdom.server -logging_level WARNING & python main.py --data_type CIFA
 optional arguments:
 --data_type                dataset type [default value is 'MNIST'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'])
 --net_mode                 network mode [default value is 'Capsule'](choices:['Capsule', 'CNN'])
---use_da                   use data augmentation or not [default value is False]
+--capsule_type             capsule network type [default value is 'ps'](choices:['ps', 'fc'])
 --routing_type             routing type [default value is 'k_means'](choices:['k_means', 'dynamic'])
 --num_iterations           routing iterations number [default value is 3]
 --batch_size               train batch size [default value is 30]
 --num_epochs               train epochs number [default value is 100]
+--use_da                   use data augmentation or not [default value is False]
 ```
 Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your browser, 
 `$data_type` means the dataset type which you are training. If you want to interrupt 
@@ -44,11 +45,14 @@ this process, just type `ps aux | grep visdom` to find the `PID`, then `kill PID
 
 ### ProbAM visualization
 ```
-python vis.py --data_type CIFAR10 
+python vis.py --data_type CIFAR10 --capsule_type fc --model_name CIFAR10_Capsule_fc.pth
 optional arguments:
 --data_type                dataset type [default value is 'STL10'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'])
 --data_mode                visualized data mode [default value is 'test_single'](choices:['test_single', 'test_multi'])
---model_name               model epoch name [default value is 'STL10_Capsule.pth']
+--capsule_type             capsule network type [default value is 'ps'](choices:['ps', 'fc'])
+--routing_type             routing type [default value is 'k_means'](choices:['k_means', 'dynamic'])
+--num_iterations           routing iterations number [default value is 3]
+--model_name               model epoch name [default value is 'STL10_Capsule_ps.pth']
 ```
 Generated ProbAM results are on the same directory with `README.md`.
 
