@@ -23,16 +23,16 @@ class MixNet(nn.Module):
         for name, module in basic_model.named_children():
             if name == 'conv1' or isinstance(module, nn.Linear):
                 continue
-            if capsule_type == 'ps' and isinstance(module, nn.AdaptiveAvgPool2d):
+            if self.net_mode == 'Capsule' and capsule_type == 'ps' and isinstance(module, nn.AdaptiveAvgPool2d):
                 continue
             layers.append(module)
         self.features = nn.Sequential(*layers)
         if self.net_mode == 'Capsule':
             if capsule_type == 'ps':
-                self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type=routing_type,
+                self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=8, routing_type=routing_type,
                                                 num_iterations=num_iterations, **kwargs)
             else:
-                self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, in_capsules=128,
+                self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=8, in_capsules=32,
                                                 share_weight=False, routing_type=routing_type,
                                                 num_iterations=num_iterations, **kwargs)
         else:
@@ -45,7 +45,7 @@ class MixNet(nn.Module):
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 8)
+            out = out.contiguous().view(out.size(0), -1, 32)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
