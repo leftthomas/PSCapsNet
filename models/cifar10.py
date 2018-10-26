@@ -1,7 +1,8 @@
 import torch
 from capsule_layer import CapsuleLinear
 from torch import nn
-from dpn import dpn_92
+
+from resnet import resnet20
 
 
 class CIFAR10Net(nn.Module):
@@ -12,7 +13,7 @@ class CIFAR10Net(nn.Module):
         self.conv1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=3, padding=1, bias=False))
 
         layers = []
-        for name, module in dpn_92().named_children():
+        for name, module in resnet20().named_children():
             if name == 'conv1' or isinstance(module, nn.AvgPool2d) or isinstance(module, nn.Linear):
                 continue
             layers.append(module)

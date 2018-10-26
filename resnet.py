@@ -45,7 +45,7 @@ class ResNet(nn.Module):
         self.stl10 = stl10
         if self.stl10:
             self.layer4 = self._make_layer(block, 64, layers[3], stride=2)
-        self.avgpool = nn.AvgPool2d(8, stride=1)
+        self.avgpool = nn.AvgPool2d(8)
         self.fc = nn.Linear(64, num_classes)
 
     def _make_layer(self, block, planes, blocks, stride=1):
