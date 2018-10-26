@@ -115,7 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('--routing_type', default='k_means', type=str, choices=['k_means', 'dynamic'],
                         help='routing type')
     parser.add_argument('--num_iterations', default=3, type=int, help='routing iterations number')
-    parser.add_argument('--batch_size', default=50, type=int, help='train batch size')
+    parser.add_argument('--batch_size', default=30, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=100, type=int, help='train epochs number')
 
     opt = parser.parse_args()

@@ -57,7 +57,7 @@ class MarginLoss(nn.Module):
         return loss.sum(dim=-1).mean()
 
 
-def get_iterator(data_type, mode, batch_size=50, use_data_augmentation=False, shuffle=True):
+def get_iterator(data_type, mode, batch_size=30, use_data_augmentation=False, shuffle=True):
     if use_data_augmentation:
         transform_train = transform_trains[data_type]
         transform_test = transforms.Compose([
