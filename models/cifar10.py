@@ -20,7 +20,8 @@ class CIFAR10Net(nn.Module):
         self.features = nn.Sequential(*layers)
 
         if self.net_mode == 'Capsule':
-            self.classifier = CapsuleLinear(out_capsules=10, in_length=32, out_length=8, routing_type=routing_type,
+            self.pool = nn.AvgPool2d(kernel_size=4)
+            self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type=routing_type,
                                             num_iterations=num_iterations, **kwargs)
         else:
             self.pool = nn.AdaptiveAvgPool2d(output_size=1)
@@ -30,14 +31,14 @@ class CIFAR10Net(nn.Module):
     def forward(self, x):
         out = self.conv1(x)
         out = self.features(out)
+        out = self.pool(out)
 
         if self.net_mode == 'Capsule':
             out = out.permute(0, 2, 3, 1)
-            out = out.contiguous().view(out.size(0), -1, 32)
+            out = out.contiguous().view(out.size(0), -1, 8)
             out = self.classifier(out)
             classes = out.norm(dim=-1)
         else:
-            out = self.pool(out)
             out = out.view(out.size(0), -1)
             out = self.classifier(out)
             classes = torch.sigmoid(out)
