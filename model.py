@@ -2,7 +2,7 @@ import torch
 from capsule_layer import CapsuleLinear
 from torch import nn
 
-from resnet import resnet26
+from resnet import resnet
 
 
 class MixNet(nn.Module):
@@ -16,7 +16,11 @@ class MixNet(nn.Module):
         else:
             self.conv1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=3, padding=1, bias=False))
         layers = []
-        for name, module in resnet26().named_children():
+        if data_type == 'STL10':
+            basic_model = resnet(use_layer_4=True)
+        else:
+            basic_model = resnet()
+        for name, module in basic_model.named_children():
             if name == 'conv1' or isinstance(module, nn.Linear):
                 continue
             if capsule_type == 'ps' and isinstance(module, nn.AdaptiveAvgPool2d):
@@ -28,12 +32,12 @@ class MixNet(nn.Module):
                 self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, routing_type=routing_type,
                                                 num_iterations=num_iterations, **kwargs)
             else:
-                self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, in_capsules=32,
+                self.classifier = CapsuleLinear(out_capsules=10, in_length=8, out_length=16, in_capsules=128,
                                                 share_weight=False, routing_type=routing_type,
                                                 num_iterations=num_iterations, **kwargs)
         else:
-            self.classifier = nn.Sequential(nn.Linear(in_features=256, out_features=128), nn.ReLU(),
-                                            nn.Linear(in_features=128, out_features=10))
+            self.classifier = nn.Sequential(nn.Linear(in_features=1024, out_features=256), nn.ReLU(),
+                                            nn.Linear(in_features=256, out_features=10))
 
     def forward(self, x):
         out = self.conv1(x)
