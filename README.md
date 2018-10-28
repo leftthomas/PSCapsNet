@@ -35,7 +35,7 @@ optional arguments:
 --capsule_type             capsule network type [default value is 'ps'](choices:['ps', 'fc'])
 --routing_type             routing type [default value is 'k_means'](choices:['k_means', 'dynamic'])
 --num_iterations           routing iterations number [default value is 3]
---batch_size               train batch size [default value is 30]
+--batch_size               train batch size [default value is 64]
 --num_epochs               train epochs number [default value is 100]
 --use_da                   use data augmentation or not [default value is False]
 ```
