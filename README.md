@@ -66,68 +66,66 @@ Generated figures are on the same directory with `README.md`.
 The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom.
 
 ### MNIST
-- Capsule
+- PS Capsule
 
-![result](results/capsule_mnist.png)
+![result](results/MNIST_Capsule_ps.png)
+
+- FC Capsule
+
+![result](results/MNIST_Capsule_fc.png)
 
 - CNN
 
-![result](results/cnn_mnist.png)
+![result](results/MNIST_CNN.png)
 
 ### FashionMNIST
-- Capsule
+- PS-Capsule
 
-![result](results/capsule_fashionmnist.png)
+![result](results/FashionMNIST_Capsule_ps.png)
+
+- FC-Capsule
+
+![result](results/FashionMNIST_Capsule_fc.png)
 
 - CNN
 
-![result](results/cnn_fashionmnist.png)
+![result](results/FashionMNIST_CNN.png)
 
 ### SVHN
-- Capsule
+- PS-Capsule
 
-![result](results/capsule_svhn.png)
+![result](results/SVHN_Capsule_ps.png)
+
+- FC-Capsule
+
+![result](results/SVHN_Capsule_fc.png)
 
 - CNN
 
-![result](results/cnn_svhn.png)
+![result](results/SVHN_CNN.png)
 
 ### CIFAR10
-- Capsule
+- PS-Capsule
 
-![result](results/capsule_cifar10.png)
+![result](results/CIFAR10_Capsule_ps.png)
+
+- FC-Capsule
+
+![result](results/CIFAR10_Capsule_fc.png)
 
 - CNN
 
-![result](results/cnn_cifar10.png)
+![result](results/CIFAR10_CNN.png)
 
 ### STL10
-- Capsule
+- PS-Capsule
 
-![result](results/capsule_stl10.png)
+![result](results/STL10_Capsule_ps.png)
+
+- FC-Capsule
+
+![result](results/STL10_Capsule_fc.png)
 
 - CNN
 
-![result](results/cnn_stl10.png)
-
-
-### ProbAM 
-- Single label image
-
-| Original | Conv1 | Feature Map | 
-| :-: | :-: | :-: | 
-| ![result](results/vis_MNIST_test_single_original.png) | ![result](results/vis_MNIST_test_single_conv1.png)| ![result](results/vis_MNIST_test_single_features.png) | 
-| ![result](results/vis_FashionMNIST_test_single_original.png) | ![result](results/vis_FashionMNIST_test_single_conv1.png)| ![result](results/vis_FashionMNIST_test_single_features.png) | 
-| ![result](results/vis_SVHN_test_single_original.png) | ![result](results/vis_SVHN_test_single_conv1.png)| ![result](results/vis_SVHN_test_single_features.png) | 
-| ![result](results/vis_CIFAR10_test_single_original.png) | ![result](results/vis_CIFAR10_test_single_conv1.png)| ![result](results/vis_CIFAR10_test_single_features.png) | 
-| ![result](results/vis_STL10_test_single_original.png) | ![result](results/vis_STL10_test_single_conv1.png)| ![result](results/vis_STL10_test_single_features.png) | 
-
-- Multi-label image
-
-| Original | Conv1 | Feature Map | 
-| :-: | :-: | :-: | 
-| ![result](results/vis_MNIST_test_multi_original.png) | ![result](results/vis_MNIST_test_multi_conv1.png)| ![result](results/vis_MNIST_test_multi_features.png) | 
-| ![result](results/vis_FashionMNIST_test_multi_original.png) | ![result](results/vis_FashionMNIST_test_multi_conv1.png)| ![result](results/vis_FashionMNIST_test_multi_features.png) | 
-| ![result](results/vis_SVHN_test_multi_original.png) | ![result](results/vis_SVHN_test_multi_conv1.png)| ![result](results/vis_SVHN_test_multi_features.png) | 
-| ![result](results/vis_CIFAR10_test_multi_original.png) | ![result](results/vis_CIFAR10_test_multi_conv1.png)| ![result](results/vis_CIFAR10_test_multi_features.png) | 
-| ![result](results/vis_STL10_test_multi_original.png) | ![result](results/vis_STL10_test_multi_conv1.png)| ![result](results/vis_STL10_test_multi_features.png) | 
+![result](results/STL10_CNN.png)
