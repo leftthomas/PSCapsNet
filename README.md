@@ -66,11 +66,11 @@ Generated figures are on the same directory with `README.md`.
 The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom.
 
 ### MNIST
-- PS Capsule
+- PS-Capsule
 
 ![result](results/MNIST_Capsule_ps.png)
 
-- FC Capsule
+- FC-Capsule
 
 ![result](results/MNIST_Capsule_fc.png)
 
