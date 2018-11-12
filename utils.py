@@ -111,5 +111,5 @@ if __name__ == '__main__':
         if os.path.splitext(file_name)[1] == '.csv':
             data = pd.read_csv('statistics/' + file_name)
             ax = data.plot(x='Epoch')
-            ax.set_ylabel('Accuracy')
+            ax.set_ylabel('Test Accuracy')
             plt.savefig(file_name.split('.')[0] + '.pdf')
