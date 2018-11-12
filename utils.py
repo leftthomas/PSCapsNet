@@ -110,6 +110,15 @@ if __name__ == '__main__':
     for file_name in os.listdir('statistics/'):
         if os.path.splitext(file_name)[1] == '.csv':
             data = pd.read_csv('statistics/' + file_name)
+            data['CNN-SA'] = data['CNN-SA'] / 100
+            data['CNN-TA'] = data['CNN-TA'] / 100
+            data['CNN-TCA'] = data['CNN-TCA'] / 100
+            data['FC-SA'] = data['FC-SA'] / 100
+            data['FC-TA'] = data['FC-TA'] / 100
+            data['FC-TCA'] = data['FC-TCA'] / 100
+            data['PS-SA'] = data['PS-SA'] / 100
+            data['PS-TA'] = data['PS-TA'] / 100
+            data['PS-TCA'] = data['PS-TCA'] / 100
             ax = data.plot(x='Epoch')
             ax.set_ylabel('Test Accuracy')
             plt.savefig(file_name.split('.')[0] + '.pdf')
