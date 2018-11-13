@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, False)))
     save_image(images, filename='vis_%s_%s_%s_original.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE), nrow=nrow,
-               normalize=True, padding=4)
+               normalize=True, padding=4, pad_value=255)
     if torch.cuda.is_available():
         images = images.to('cuda')
     image_size = (images.size(-1), images.size(-2))
@@ -52,7 +52,7 @@ if __name__ == '__main__':
             out = module(images)
             save_image(out.mean(dim=1, keepdim=True),
                        filename='vis_%s_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE), nrow=nrow,
-                       normalize=True, padding=4)
+                       normalize=True, padding=4, pad_value=255)
         elif name == 'features':
             out = module(out)
             features = out
@@ -83,4 +83,4 @@ if __name__ == '__main__':
                 heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
             heat_maps = torch.stack(heat_maps)
             save_image(heat_maps, filename='vis_%s_%s_%s_features.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE),
-                       nrow=nrow, padding=4)
+                       nrow=nrow, padding=4, pad_value=255)
