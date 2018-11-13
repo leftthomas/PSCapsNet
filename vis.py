@@ -1,12 +1,11 @@
 import argparse
 
-import cv2
-import numpy as np
 import torch
-import torchvision.transforms as transforms
 from torchvision.utils import save_image
 
+from gradcam import GradCam
 from model import MixNet
+from probam import ProbAM
 from utils import get_iterator
 
 if __name__ == '__main__':
@@ -31,11 +30,14 @@ if __name__ == '__main__':
     for NET_MODE in ['Capsule_ps', 'Capsule_fc', 'CNN']:
         if NET_MODE == 'Capsule_ps':
             model = MixNet(data_type=DATA_TYPE, capsule_type='ps', num_iterations=NUM_ITERATIONS, return_prob=True)
+            AM_method = ProbAM(model)
         elif NET_MODE == 'Capsule_fc':
             model = MixNet(data_type=DATA_TYPE, capsule_type='fc', routing_type='dynamic',
                            num_iterations=NUM_ITERATIONS, return_prob=True)
+            AM_method = ProbAM(model)
         else:
             model = MixNet(data_type=DATA_TYPE, net_mode='CNN')
+            AM_method = GradCam(model)
         if torch.cuda.is_available():
             model = model.to('cuda')
             model.load_state_dict(torch.load('epochs/' + DATA_TYPE + '_' + NET_MODE + '.pth'))
@@ -44,42 +46,10 @@ if __name__ == '__main__':
 
         if torch.cuda.is_available():
             images = images.to('cuda')
-        image_size = (images.size(-1), images.size(-2))
 
-        for name, module in model.named_children():
-            if name == 'conv1':
-                out = module(images)
-                save_image(out.mean(dim=1, keepdim=True),
-                           filename='vis_%s_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE, NET_MODE), nrow=nrow,
-                           normalize=True, padding=4, pad_value=255)
-            elif name == 'features':
-                out = module(out)
-                features = out
-            elif name == 'classifier':
-                out = out.permute(0, 2, 3, 1)
-                out = out.contiguous().view(out.size(0), -1, module.weight.size(-1))
-                out, probs = module(out)
-                classes = out.norm(dim=-1)
-                prob = (probs * classes.unsqueeze(dim=-1)).sum(dim=1)
-                prob = prob.view(prob.size(0), *features.size()[-2:], -1)
-                prob = prob.permute(0, 3, 1, 2).sum(dim=1)
+        conv1_heat_maps, features_heat_maps = AM_method(images)
 
-                heat_maps = []
-                for i in range(prob.size(0)):
-                    img = images[i].detach().cpu().numpy()
-                    img = img - np.min(img)
-                    if np.max(img) != 0:
-                        img = img / np.max(img)
-                    mask = cv2.resize(prob[i].detach().cpu().numpy(), image_size)
-                    mask = mask - np.min(mask)
-                    if np.max(mask) != 0:
-                        mask = mask / np.max(mask)
-                    heat_map = np.float32(cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET))
-                    cam = heat_map + np.float32((np.uint8(img.transpose((1, 2, 0)) * 255)))
-                    cam = cam - np.min(cam)
-                    if np.max(cam) != 0:
-                        cam = cam / np.max(cam)
-                    heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
-                heat_maps = torch.stack(heat_maps)
-                save_image(heat_maps, filename='vis_%s_%s_%s_features.png' % (DATA_TYPE, DATA_MODE, NET_MODE),
-                           nrow=nrow, padding=4, pad_value=255)
+        save_image(conv1_heat_maps, filename='vis_%s_%s_%s_conv1.png' % (DATA_TYPE, DATA_MODE, NET_MODE), nrow=nrow,
+                   normalize=True, padding=4, pad_value=255)
+        save_image(features_heat_maps, filename='vis_%s_%s_%s_features.png' % (DATA_TYPE, DATA_MODE, NET_MODE),
+                   nrow=nrow, padding=4, pad_value=255)
