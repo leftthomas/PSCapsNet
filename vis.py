@@ -39,7 +39,6 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME))
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
-    model = model.eval()
 
     images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, False)))
     save_image(images, filename='vis_%s_%s_%s_original.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE), nrow=nrow,
@@ -68,11 +67,11 @@ if __name__ == '__main__':
 
             heat_maps = []
             for i in range(prob.size(0)):
-                img = images[i].cpu().numpy()
+                img = images[i].detach().numpy()
                 img = img - np.min(img)
                 if np.max(img) != 0:
                     img = img / np.max(img)
-                mask = cv2.resize(prob[i].cpu().numpy(), image_size)
+                mask = cv2.resize(prob[i].detach().numpy(), image_size)
                 mask = mask - np.min(mask)
                 if np.max(mask) != 0:
                     mask = mask / np.max(mask)
