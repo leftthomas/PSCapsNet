@@ -30,7 +30,7 @@ if __name__ == '__main__':
     NUM_ITERATIONS = opt.num_iterations
     MODEL_NAME = opt.model_name
     model = MixNet(data_type=DATA_TYPE, capsule_type=CAPSULE_TYPE, routing_type=ROUTING_TYPE,
-                   num_iterations=NUM_ITERATIONS, return_prob=True).eval()
+                   num_iterations=NUM_ITERATIONS, return_prob=True)
     batch_size = 16 if DATA_MODE == 'test_single' else 8
     nrow = 4 if DATA_MODE == 'test_single' else 2
 
@@ -39,6 +39,7 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME))
     else:
         model.load_state_dict(torch.load('epochs/' + MODEL_NAME, map_location='cpu'))
+    model = model.eval()
 
     images, labels = next(iter(get_iterator(DATA_TYPE, DATA_MODE, batch_size, False)))
     save_image(images, filename='vis_%s_%s_%s_original.png' % (DATA_TYPE, DATA_MODE, CAPSULE_TYPE), nrow=nrow,
