@@ -16,7 +16,13 @@ class GradCam:
 
     def __call__(self, images):
         image_size = (images.size(-1), images.size(-2))
-        heat_maps = []
+
+        for name, module in self.model.named_children():
+            if name == 'conv1':
+                out = module(images)
+                conv1_heat_maps = out.mean(dim=1, keepdim=True)
+
+        features_heat_maps = []
         for i in range(images.size(0)):
             img = images[i].detach().cpu().numpy()
             img = img - np.min(img)
@@ -47,6 +53,6 @@ class GradCam:
             cam = cam - np.min(cam)
             if np.max(cam) != 0:
                 cam = cam / np.max(cam)
-            heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
-        heat_maps = torch.stack(heat_maps)
-        return heat_maps
+            features_heat_maps.append(transforms.ToTensor()(cv2.cvtColor(np.uint8(255 * cam), cv2.COLOR_BGR2RGB)))
+        features_heat_maps = torch.stack(features_heat_maps)
+        return conv1_heat_maps, features_heat_maps
