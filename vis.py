@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
             heat_maps = []
             for i in range(prob.size(0)):
-                img = images[i].detach().numpy()
+                img = images[i].detach().cpu().numpy()
                 img = img - np.min(img)
                 if np.max(img) != 0:
                     img = img / np.max(img)
-                mask = cv2.resize(prob[i].detach().numpy(), image_size)
+                mask = cv2.resize(prob[i].detach().cpu().numpy(), image_size)
                 mask = mask - np.min(mask)
                 if np.max(mask) != 0:
                     mask = mask / np.max(mask)
