@@ -43,18 +43,15 @@ Visdom now can be accessed by going to `127.0.0.1:8097/env/$data_type` in your b
 `$data_type` means the dataset type which you are training. If you want to interrupt 
 this process, just type `ps aux | grep visdom` to find the `PID`, then `kill PID`.
 
-### ProbAM visualization
+### Visualization
 ```
-python vis.py --data_type CIFAR10 --capsule_type fc --model_name CIFAR10_Capsule_fc.pth
+python vis.py --data_type CIFAR10
 optional arguments:
 --data_type                dataset type [default value is 'STL10'](choices:['MNIST', 'FashionMNIST', 'SVHN', 'CIFAR10', 'STL10'])
 --data_mode                visualized data mode [default value is 'test_single'](choices:['test_single', 'test_multi'])
---capsule_type             capsule network type [default value is 'ps'](choices:['ps', 'fc'])
---routing_type             routing type [default value is 'k_means'](choices:['k_means', 'dynamic'])
 --num_iterations           routing iterations number [default value is 3]
---model_name               model epoch name [default value is 'STL10_Capsule_ps.pth']
 ```
-Generated ProbAM results are on the same directory with `README.md`.
+Generated results are on the same directory with `README.md`.
 
 ### Generate figures
 ```
