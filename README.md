@@ -1,5 +1,5 @@
 # PSCapsNet
-A PyTorch implementation of Parameter-sharing Capsule Network based on the paper [Parameter-sharing capsule with k-means routing]().
+A PyTorch implementation of Parameter-sharing Capsule Network based on the paper [Evaluating Generalization Ability of Convolutional Neural Networks and Capsule Networks for Image Classification via Top-2 Classification]().
 
 ## Requirements
 * [Anaconda](https://www.anaconda.com/download/)
