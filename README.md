@@ -17,7 +17,7 @@ pip install git+https://github.com/leftthomas/CapsuleLayer.git@master
 ```
 
 ## Datasets
-We have uploaded the datasets into [BaiduYun](https://pan.baidu.com/s/1El-gfQUsCSk1Rllp6F0gqw) and 
+We have uploaded the datasets into [BaiduYun](https://pan.baidu.com/s/1wryLfOmzDnvtm28jmJhyLg)(access code:tr4u) and 
 [GoogleDrive](https://drive.google.com/open?id=12LBRtmvGcJtDRqyvpk_vN-jBs0ccu1bM). 
 
 You needn't download the datasets by yourself, the code will download them automatically.
@@ -60,7 +60,7 @@ python utils.py
 Generated figures are on the same directory with `README.md`.
 
 ## Results
-The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom. The pretrained models and more results can be found in [BaiduYun](https://pan.baidu.com/s/1g64z9Sz77smRR7L3DGK-xQ) and 
+The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom. The pretrained models and more results can be found in [BaiduYun](https://pan.baidu.com/s/1uG8VdgNuylrWLQbKGzQ3Jg)(access code:kvmj) and 
 [GoogleDrive](https://drive.google.com/drive/folders/12LBRtmvGcJtDRqyvpk_vN-jBs0ccu1bM?usp=sharing).
 
 ### MNIST
