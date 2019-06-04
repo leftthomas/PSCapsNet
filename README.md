@@ -15,6 +15,10 @@ pip install git+https://github.com/pytorch/tnt.git@master
 ```
 pip install git+https://github.com/leftthomas/CapsuleLayer.git@master
 ```
+- opencv
+```
+conda install opencv
+```
 
 ## Datasets
 We have uploaded the datasets into [BaiduYun](https://pan.baidu.com/s/1wryLfOmzDnvtm28jmJhyLg)(access code:tr4u) and 
