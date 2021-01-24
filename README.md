@@ -21,12 +21,8 @@ conda install opencv
 ```
 
 ## Datasets
-We have uploaded the datasets into [BaiduYun](https://pan.baidu.com/s/1wryLfOmzDnvtm28jmJhyLg)(access code:tr4u) and 
-[GoogleDrive](https://drive.google.com/open?id=12LBRtmvGcJtDRqyvpk_vN-jBs0ccu1bM). 
-
+We have uploaded the datasets into [BaiduYun](https://pan.baidu.com/s/1wryLfOmzDnvtm28jmJhyLg)(access code:tr4u). 
 You needn't download the datasets by yourself, the code will download them automatically.
-If you encounter network issues, you can download all the datasets from the aforementioned cloud storage webs, 
-and extract them into `data` directory.
 
 ## Usage
 
