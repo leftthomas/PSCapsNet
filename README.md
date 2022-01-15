@@ -60,8 +60,7 @@ python utils.py
 Generated figures are on the same directory with `README.md`.
 
 ## Results
-The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom. The pretrained models and more results can be found in [BaiduYun](https://pan.baidu.com/s/1uG8VdgNuylrWLQbKGzQ3Jg)(access code:kvmj) and 
-[GoogleDrive](https://drive.google.com/drive/folders/12LBRtmvGcJtDRqyvpk_vN-jBs0ccu1bM?usp=sharing).
+The train loss、accuracy, test loss、accuracy and confusion matrix are showed on visdom. The pretrained models and more results can be found in [BaiduYun](https://pan.baidu.com/s/1uG8VdgNuylrWLQbKGzQ3Jg)(access code:kvmj).
 
 ### MNIST
 - PS-Capsule
